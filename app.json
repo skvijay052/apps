@@ -1,0 +1,46 @@
+{
+  "expo": {
+    "name": "dating-app",
+    "slug": "dating-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#FF6B6B"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.yourcompany.datingapp"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#FF6B6B"
+      },
+      "package": "com.yourcompany.datingapp",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-image-picker",
+      [
+        "expo-notifications",
+        {
+          "color": "#FF6B6B"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "efc4a94e-3f20-4a6d-8893-8b9ed404e632"
+      }
+    }
+  }
+}

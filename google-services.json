@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "140657219473",
+    "project_id": "dating-app-e1020",
+    "storage_bucket": "dating-app-e1020.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:140657219473:android:cdf3caddefa79eb61bac30",
+        "android_client_info": {
+          "package_name": "com.datingmatch.datingapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCWnXzT0gnTIJL-ntWgGPlYpN5xu5XYNLg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
