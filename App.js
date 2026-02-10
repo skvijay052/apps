@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import AppNavigator from '../src/navigation/AppNavigator';
-import useStore from '../src/store/useStore';
-import { requestNotificationPermissions, setupNotifications } from '../src/services/notifications';
+import AppNavigator from './navigation/AppNavigator';
+import useStore from './store/useStore';
+import { requestNotificationPermissions, setupNotifications } from './services/notifications';
 
 export default function App() {
   const initializeFromStorage = useStore(state => state.initializeFromStorage);

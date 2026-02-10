@@ -21,7 +21,7 @@ import SettingScreen from '../screens/Settingsscreen';
 import AboutScreen from '../screens/AboutScreen';
 
 import useStore from '../store/useStore';
-import HelpSupportScreen from '../screens/Helpsupportscreen';
+import HelpSupportScreen from '../screens/HelpsupportScreen';
 import LikesScreen from '../screens/LikeScreen';
 import HomeScreen from '../screens/HomeScreen';
 import RegisterScreen from '../screens/RegisterScreen';

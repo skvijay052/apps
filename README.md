@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Dating App - React Native
 
 A modern, feature-rich dating application built with React Native and Expo.
@@ -325,3 +326,7 @@ For issues and questions:
 ---
 
 Built with ❤️ using React Native & Expo
+=======
+# apps
+My React Native dating app
+>>>>>>> f67da323695e350270c26694bc71d1ba63d66411
