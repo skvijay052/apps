@@ -20,8 +20,8 @@ export default function App() {
   }, []);
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <StatusBar style="auto" />
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: '#000' }}>
+      <StatusBar style="light" />
       <AppNavigator />
     </GestureHandlerRootView>
   );

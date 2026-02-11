@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "dating-app",
+    "name": "app",
     "slug": "dating-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -11,13 +11,10 @@
       "resizeMode": "contain",
       "backgroundColor": "#000000"
     },
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.yourcompany.datingapp"
-    },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#FF6B6B"
+        "foregroundImage": "./assets/icons/icon.png",
+        "backgroundColor": "#000000"
       },
       "package": "com.yourcompany.datingapp",
       "permissions": [
@@ -26,7 +23,8 @@
         "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.RECORD_AUDIO"
       ]
-    },
+    }
+  },
     "web": {
       "favicon": "./assets/favicon.png"
     },
@@ -41,8 +39,9 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "efc4a94e-3f20-4a6d-8893-8b9ed404e632"
+        "projectId": "ec824628-8fdf-401e-8f10-a4c3912ec013"
       }
-    }
+    },
+    "owner": "skvijay"
   }
 }
