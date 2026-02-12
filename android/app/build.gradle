@@ -87,9 +87,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.yourcompany.datingapp'
+    namespace 'com.datingmatch.datingapp'
     defaultConfig {
-        applicationId 'com.yourcompany.datingapp'
+        applicationId 'com.datingmatch.datingapp'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

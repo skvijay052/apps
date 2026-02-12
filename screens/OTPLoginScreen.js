@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
+  Image,
   TextInput,
   TouchableOpacity,
   StyleSheet,
@@ -104,22 +105,21 @@ export default function LoginScreen({ navigation }) {
       style={styles.container}
     >
       <LinearGradient
-        colors={['#FF6B6B', '#FF8E53']}
+        colors={['#fff', '#fff']}
         style={styles.gradient}
       >
         <View style={styles.content}>
           {/* Logo/Icon */}
           <View style={styles.logoContainer}>
-            <Ionicons name="heart-circle" size={100} color="#FFF" />
-            <Text style={styles.appName}>Dating App</Text>
-            <Text style={styles.tagline}>Find Your Perfect Match</Text>
+            <Image
+              source={require('../assets/icons/transparent-logo.png')}
+              style={styles.logo}
+            />
           </View>
 
           {/* Login Form */}
           <View style={styles.formContainer}>
-            <Text style={styles.title}>Welcome Back</Text>
-            <Text style={styles.subtitle}>Login to continue</Text>
-
+           
             {/* Login Method Toggle */}
             <View style={styles.toggleContainer}>
               <TouchableOpacity
@@ -135,7 +135,7 @@ export default function LoginScreen({ navigation }) {
                 <Ionicons 
                   name="mail-outline" 
                   size={18} 
-                  color={loginMethod === 'email' ? '#FF6B6B' : '#FFF'} 
+                  color={loginMethod === 'email' ? '#000' : '#000'} 
                 />
                 <Text style={[
                   styles.toggleButtonText,
@@ -158,7 +158,7 @@ export default function LoginScreen({ navigation }) {
                 <Ionicons 
                   name="phone-portrait-outline" 
                   size={18} 
-                  color={loginMethod === 'otp' ? '#FF6B6B' : '#FFF'} 
+                  color={loginMethod === 'otp' ? '#000' : '#000'} 
                 />
                 <Text style={[
                   styles.toggleButtonText,
@@ -175,11 +175,11 @@ export default function LoginScreen({ navigation }) {
                 {/* Email Input */}
                 <View style={styles.inputGroup}>
                   <View style={styles.inputContainer}>
-                    <Ionicons name="mail-outline" size={20} color="rgba(255,255,255,0.8)" />
+                    <Ionicons name="mail-outline" size={20} color="rgba(000,000,000,0.8)" />
                     <TextInput
                       style={styles.input}
                       placeholder="Email Address"
-                      placeholderTextColor="rgba(255,255,255,0.6)"
+                      placeholderTextColor="rgba(000,000,000,0.6)"
                       value={email}
                       onChangeText={setEmail}
                       keyboardType="email-address"
@@ -191,11 +191,11 @@ export default function LoginScreen({ navigation }) {
                 {/* Password Input */}
                 <View style={styles.inputGroup}>
                   <View style={styles.inputContainer}>
-                    <Ionicons name="lock-closed-outline" size={20} color="rgba(255,255,255,0.8)" />
+                    <Ionicons name="lock-closed-outline" size={20} color="rgba(000,000,000,0.8)" />
                     <TextInput
                       style={styles.input}
                       placeholder="Password"
-                      placeholderTextColor="rgba(255,255,255,0.6)"
+                      placeholderTextColor="rgba(000,000,000,0.6)"
                       value={password}
                       onChangeText={setPassword}
                       secureTextEntry={!showPassword}
@@ -205,7 +205,7 @@ export default function LoginScreen({ navigation }) {
                       <Ionicons 
                         name={showPassword ? "eye-outline" : "eye-off-outline"} 
                         size={20} 
-                        color="rgba(255,255,255,0.8)" 
+                        color="rgba(000,000,000,0.8)" 
                       />
                     </TouchableOpacity>
                   </View>
@@ -234,12 +234,12 @@ export default function LoginScreen({ navigation }) {
                     {/* Phone Input */}
                     <View style={styles.inputGroup}>
                       <View style={styles.inputContainer}>
-                        <Ionicons name="call-outline" size={20} color="rgba(255,255,255,0.8)" />
+                        <Ionicons name="call-outline" size={20} color="rgba(000,000,000,0.8)" />
                         <Text style={styles.countryCode}>+91</Text>
                         <TextInput
                           style={styles.input}
                           placeholder="Phone Number"
-                          placeholderTextColor="rgba(255,255,255,0.6)"
+                          placeholderTextColor="rgba(000,000,000,0.6)"
                           value={phoneNumber}
                           onChangeText={setPhoneNumber}
                           keyboardType="phone-pad"
@@ -263,7 +263,7 @@ export default function LoginScreen({ navigation }) {
                       style={styles.backButton}
                       onPress={() => setOtpStep('phone')}
                     >
-                      <Ionicons name="arrow-back" size={24} color="#FFF" />
+                      <Ionicons name="arrow-back" size={24} color="#000" />
                       <Text style={styles.backButtonText}>Change Number</Text>
                     </TouchableOpacity>
 
@@ -314,15 +314,15 @@ export default function LoginScreen({ navigation }) {
                 </View>
 
                 {/* Social Login Buttons */}
-                <TouchableOpacity style={styles.socialButton}>
-                  <Ionicons name="logo-google" size={20} color="#FFF" />
+                {/* <TouchableOpacity style={styles.socialButton}>
+                  <Ionicons name="logo-google" size={20} color="#000" />
                   <Text style={styles.socialButtonText}>Continue with Google</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.socialButton}>
-                  <Ionicons name="logo-facebook" size={20} color="#FFF" />
+                  <Ionicons name="logo-facebook" size={20} color="#000" />
                   <Text style={styles.socialButtonText}>Continue with Facebook</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
               </>
             )}
 
@@ -353,18 +353,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
   },
   logoContainer: {
-    alignItems: 'center',
-    marginBottom: 40,
+    alignItems: 'center', 
+  },
+  logo: {
+    width: 200,
+    height: 140,
   },
   appName: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#FFF',
+    color: '#000',
     marginTop: 15,
   },
   tagline: {
     fontSize: 14,
-    color: 'rgba(255,255,255,0.9)',
+    color: 'rgba(0,0,0,0.9)',
     marginTop: 5,
   },
   formContainer: {
@@ -373,17 +376,17 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#FFF',
+    color: '#000',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: 'rgba(255,255,255,0.9)',
+    color: 'rgba(0,0,0,0.9)',
     marginBottom: 20,
   },
   toggleContainer: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: 'rgba(000,000,000,0.15)',
     borderRadius: 12,
     padding: 4,
     marginBottom: 20,
@@ -400,13 +403,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
   },
   toggleButtonText: {
-    color: '#FFF',
+    color: '#000',
     fontSize: 14,
     fontWeight: '600',
     marginLeft: 6,
   },
   toggleButtonTextActive: {
-    color: '#FF6B6B',
+    color: '#000',
   },
   inputGroup: {
     marginBottom: 15,
@@ -414,19 +417,19 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'rgba(000,000,000,0.2)',
     borderRadius: 12,
     paddingHorizontal: 15,
   },
   input: {
     flex: 1,
     height: 55,
-    color: '#FFF',
+    color: '#000',
     fontSize: 16,
     marginLeft: 10,
   },
   countryCode: {
-    color: '#FFF',
+    color: '#000',
     fontSize: 16,
     fontWeight: '600',
     marginLeft: 10,
@@ -436,12 +439,12 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   forgotPasswordText: {
-    color: '#FFF',
+    color: '#000',
     fontSize: 14,
     textDecorationLine: 'underline',
   },
   loginButton: {
-    backgroundColor: '#FFF',
+    backgroundColor: '#000',
     borderRadius: 12,
     height: 55,
     justifyContent: 'center',
@@ -454,7 +457,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   loginButtonText: {
-    color: '#FF6B6B',
+    color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -464,13 +467,13 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   backButtonText: {
-    color: '#FFF',
+    color: '#000',
     fontSize: 16,
     marginLeft: 8,
     textDecorationLine: 'underline',
   },
   otpInstructions: {
-    color: 'rgba(255,255,255,0.9)',
+    color: 'rgba(0,0,0,0.9)',
     fontSize: 15,
     textAlign: 'center',
     marginBottom: 25,
@@ -484,26 +487,26 @@ const styles = StyleSheet.create({
   otpInput: {
     width: 50,
     height: 60,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'rgba(000,000,000,0.2)',
     borderRadius: 12,
     textAlign: 'center',
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#FFF',
+    color: '#000',
     borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.3)',
+    borderColor: 'rgba(0,0,0,0.3)',
   },
   resendButton: {
     alignSelf: 'center',
     marginBottom: 10,
   },
   resendText: {
-    color: '#FFF',
+    color: '#000',
     fontSize: 14,
     textDecorationLine: 'underline',
   },
   otpHint: {
-    color: 'rgba(255,255,255,0.7)',
+    color: 'rgba(0,0,0,0.7)',
     fontSize: 12,
     textAlign: 'center',
     fontStyle: 'italic',
@@ -517,10 +520,10 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: 'rgba(255,255,255,0.3)',
+    backgroundColor: 'rgba(000,000,000,0.3)',
   },
   dividerText: {
-    color: 'rgba(255,255,255,0.8)',
+    color: 'rgba(0,0,0,0.8)',
     marginHorizontal: 10,
     fontSize: 14,
   },
@@ -528,15 +531,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'rgba(000,000,000,0.2)',
     borderRadius: 12,
     height: 50,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
+    borderColor: 'rgba(0,0,0,0.3)',
   },
   socialButtonText: {
-    color: '#FFF',
+    color: '#000',
     fontSize: 16,
     fontWeight: '600',
     marginLeft: 10,
@@ -548,11 +551,11 @@ const styles = StyleSheet.create({
   },
   registerText: {
     fontSize: 14,
-    color: 'rgba(255,255,255,0.9)',
+    color: 'rgba(0,0,0,0.9)',
   },
   registerLink: {
     fontSize: 14,
-    color: '#FFF',
+    color: '#000',
     fontWeight: 'bold',
     textDecorationLine: 'underline',
   },

@@ -7,24 +7,27 @@
     "userInterfaceStyle": "light",
     "icon": "./assets/icons/icon.png",
     "splash": {
-      "image": "./assets/icons/splash-logo.png",
+      "image": "./assets/icons/splash-logo-t.png",
       "resizeMode": "contain",
       "backgroundColor": "#000000"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.datingmatch.datingapp"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/icons/icon.png",
         "backgroundColor": "#000000"
       },
-      "package": "com.yourcompany.datingapp",
+      "package": "com.datingmatch.datingapp",
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.RECORD_AUDIO"
       ]
-    }
-  },
+    },
     "web": {
       "favicon": "./assets/favicon.png"
     },
