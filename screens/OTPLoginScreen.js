@@ -12,6 +12,13 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { 
+  signInWithEmailAndPassword,
+  PhoneAuthProvider,
+  signInWithCredential
+} from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+import { auth, db } from '../config/firebase';
 import useStore from '../store/useStore';
 
 export default function LoginScreen({ navigation }) {
@@ -27,37 +34,99 @@ export default function LoginScreen({ navigation }) {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otpStep, setOtpStep] = useState('phone'); // 'phone' or 'verify'
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const [verificationId, setVerificationId] = useState(null);
+  const [loading, setLoading] = useState(false);
   const otpRefs = useRef([]);
 
   const login = useStore(state => state.login);
   const setPhoneNumberStore = useStore(state => state.setPhoneNumber);
 
+  // Email/Password Login with Firebase
   const handleEmailLogin = async () => {
     if (!email || !password) {
       Alert.alert('Error', 'Please enter email and password');
       return;
     }
 
-    // Mock login - In production, validate with backend
-    const userData = {
-      id: Date.now(),
-      email,
-      name: email.split('@')[0],
-      createdAt: new Date().toISOString(),
-    };
+    setLoading(true);
 
-    await login(userData);
+    try {
+      // Sign in with Firebase Auth
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Get user data from Firestore
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      
+      if (userDoc.exists()) {
+        const userData = {
+          id: user.uid,
+          ...userDoc.data()
+        };
+
+        await login(userData);
+        Alert.alert('Success', 'Login successful!');
+        
+        // Check if profile is complete
+        if (userData.profileComplete) {
+          navigation.replace('Main');
+        } else {
+          navigation.replace('CreateProfile');
+        }
+      } else {
+        Alert.alert('Error', 'User data not found. Please register again.');
+      }
+
+    } catch (error) {
+      console.error('Login error:', error);
+      
+      let errorMessage = 'Login failed. Please try again.';
+      
+      if (error.code === 'auth/user-not-found') {
+        errorMessage = 'No account found with this email.';
+      } else if (error.code === 'auth/wrong-password') {
+        errorMessage = 'Incorrect password.';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'Invalid email address.';
+      } else if (error.code === 'auth/too-many-requests') {
+        errorMessage = 'Too many attempts. Please try again later.';
+      }
+      
+      Alert.alert('Error', errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSendOTP = () => {
+  // Phone OTP Login (Note: Phone auth requires additional setup)
+  const handleSendOTP = async () => {
     if (phoneNumber.length < 10) {
       Alert.alert('Error', 'Please enter a valid phone number');
       return;
     }
-    
-    setPhoneNumberStore(phoneNumber);
-    setOtpStep('verify');
-    // In production, trigger actual OTP send via Firebase/API
+
+    setLoading(true);
+
+    try {
+      // For demo purposes - in production, use Firebase Phone Auth
+      // Firebase Phone Auth requires reCAPTCHA setup for web
+      // For React Native, you need @react-native-firebase/auth
+      
+      Alert.alert(
+        'Demo Mode',
+        'Phone authentication is in demo mode. Use OTP: 123456',
+        [{ text: 'OK', onPress: () => {
+          setPhoneNumberStore(`+91${phoneNumber}`);
+          setOtpStep('verify');
+        }}]
+      );
+
+    } catch (error) {
+      console.error('OTP send error:', error);
+      Alert.alert('Error', 'Failed to send OTP. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleOTPChange = (value, index) => {
@@ -83,19 +152,32 @@ export default function LoginScreen({ navigation }) {
   };
 
   const verifyOTP = async (otpCode) => {
-    // Simulate OTP verification
-    if (otpCode === '123456') {
-      const userData = {
-        id: Date.now(),
-        phoneNumber,
-        name: 'User', // Default name, will be updated in profile
-        createdAt: new Date().toISOString(),
-      };
-      await login(userData);
-    } else {
-      Alert.alert('Error', 'Invalid OTP. Please try again. (Use 123456)');
-      setOtp(['', '', '', '', '', '']);
-      otpRefs.current[0].focus();
+    setLoading(true);
+
+    try {
+      // Demo verification - replace with actual Firebase Phone Auth
+      if (otpCode === '123456') {
+        // Create a mock user for demo
+        const userData = {
+          id: Date.now().toString(),
+          phoneNumber: `+91${phoneNumber}`,
+          name: 'User',
+          createdAt: new Date().toISOString(),
+        };
+        
+        await login(userData);
+        Alert.alert('Success', 'Login successful!');
+        navigation.replace('CreateProfile');
+      } else {
+        Alert.alert('Error', 'Invalid OTP. Please try again. (Use 123456)');
+        setOtp(['', '', '', '', '', '']);
+        otpRefs.current[0].focus();
+      }
+    } catch (error) {
+      console.error('OTP verification error:', error);
+      Alert.alert('Error', 'Verification failed. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -131,11 +213,12 @@ export default function LoginScreen({ navigation }) {
                   setLoginMethod('email');
                   setOtpStep('phone');
                 }}
+                disabled={loading}
               >
                 <Ionicons 
                   name="mail-outline" 
                   size={18} 
-                  color={loginMethod === 'email' ? '#000' : '#000'} 
+                  color={loginMethod === 'email' ? '#1F2937' : '#1F2937'} 
                 />
                 <Text style={[
                   styles.toggleButtonText,
@@ -154,11 +237,12 @@ export default function LoginScreen({ navigation }) {
                   setLoginMethod('otp');
                   setOtpStep('phone');
                 }}
+                disabled={loading}
               >
                 <Ionicons 
                   name="phone-portrait-outline" 
                   size={18} 
-                  color={loginMethod === 'otp' ? '#000' : '#000'} 
+                  color={loginMethod === 'otp' ? '#1F2937' : '#1F2937'} 
                 />
                 <Text style={[
                   styles.toggleButtonText,
@@ -175,15 +259,16 @@ export default function LoginScreen({ navigation }) {
                 {/* Email Input */}
                 <View style={styles.inputGroup}>
                   <View style={styles.inputContainer}>
-                    <Ionicons name="mail-outline" size={20} color="rgba(000,000,000,0.8)" />
+                    <Ionicons name="mail-outline" size={20} color="#9CA3AF" />
                     <TextInput
                       style={styles.input}
                       placeholder="Email Address"
-                      placeholderTextColor="rgba(000,000,000,0.6)"
+                      placeholderTextColor="#9CA3AF"
                       value={email}
                       onChangeText={setEmail}
                       keyboardType="email-address"
                       autoCapitalize="none"
+                      editable={!loading}
                     />
                   </View>
                 </View>
@@ -191,15 +276,16 @@ export default function LoginScreen({ navigation }) {
                 {/* Password Input */}
                 <View style={styles.inputGroup}>
                   <View style={styles.inputContainer}>
-                    <Ionicons name="lock-closed-outline" size={20} color="rgba(000,000,000,0.8)" />
+                    <Ionicons name="lock-closed-outline" size={20} color="#9CA3AF" />
                     <TextInput
                       style={styles.input}
                       placeholder="Password"
-                      placeholderTextColor="rgba(000,000,000,0.6)"
+                      placeholderTextColor="#9CA3AF"
                       value={password}
                       onChangeText={setPassword}
                       secureTextEntry={!showPassword}
                       autoCapitalize="none"
+                      editable={!loading}
                     />
                     <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
                       <Ionicons 
@@ -220,8 +306,11 @@ export default function LoginScreen({ navigation }) {
                 <TouchableOpacity 
                   style={styles.loginButton}
                   onPress={handleEmailLogin}
+                  disabled={loading}
                 >
-                  <Text style={styles.loginButtonText}>Login with Email</Text>
+                  <Text style={styles.loginButtonText}>
+                    {loading ? 'Logging in...' : 'Login with Email'}
+                  </Text>
                 </TouchableOpacity>
               </>
             )}
@@ -234,16 +323,17 @@ export default function LoginScreen({ navigation }) {
                     {/* Phone Input */}
                     <View style={styles.inputGroup}>
                       <View style={styles.inputContainer}>
-                        <Ionicons name="call-outline" size={20} color="rgba(000,000,000,0.8)" />
+                        <Ionicons name="call-outline" size={20} color="#9CA3AF" />
                         <Text style={styles.countryCode}>+91</Text>
                         <TextInput
                           style={styles.input}
                           placeholder="Phone Number"
-                          placeholderTextColor="rgba(000,000,000,0.6)"
+                          placeholderTextColor="#9CA3AF"
                           value={phoneNumber}
                           onChangeText={setPhoneNumber}
                           keyboardType="phone-pad"
                           maxLength={10}
+                          editable={!loading}
                         />
                       </View>
                     </View>
@@ -252,8 +342,11 @@ export default function LoginScreen({ navigation }) {
                     <TouchableOpacity 
                       style={styles.loginButton}
                       onPress={handleSendOTP}
+                      disabled={loading}
                     >
-                      <Text style={styles.loginButtonText}>Send OTP</Text>
+                      <Text style={styles.loginButtonText}>
+                        {loading ? 'Sending...' : 'Send OTP'}
+                      </Text>
                     </TouchableOpacity>
                   </>
                 ) : (
@@ -262,8 +355,9 @@ export default function LoginScreen({ navigation }) {
                     <TouchableOpacity 
                       style={styles.backButton}
                       onPress={() => setOtpStep('phone')}
+                      disabled={loading}
                     >
-                      <Ionicons name="arrow-back" size={24} color="#000" />
+                      <Ionicons name="arrow-back" size={24} color="#1F2937" />
                       <Text style={styles.backButtonText}>Change Number</Text>
                     </TouchableOpacity>
 
@@ -288,12 +382,17 @@ export default function LoginScreen({ navigation }) {
                           }}
                           keyboardType="number-pad"
                           maxLength={1}
+                          editable={!loading}
                         />
                       ))}
                     </View>
 
                     {/* Resend OTP */}
-                    <TouchableOpacity style={styles.resendButton}>
+                    <TouchableOpacity 
+                      style={styles.resendButton}
+                      onPress={handleSendOTP}
+                      disabled={loading}
+                    >
                       <Text style={styles.resendText}>Didn't receive? Resend OTP</Text>
                     </TouchableOpacity>
 
@@ -306,24 +405,11 @@ export default function LoginScreen({ navigation }) {
 
             {/* OR Divider - Only show for email login */}
             {loginMethod === 'email' && (
-              <>
-                <View style={styles.divider}>
-                  <View style={styles.dividerLine} />
-                  <Text style={styles.dividerText}>OR</Text>
-                  <View style={styles.dividerLine} />
-                </View>
-
-                {/* Social Login Buttons */}
-                {/* <TouchableOpacity style={styles.socialButton}>
-                  <Ionicons name="logo-google" size={20} color="#000" />
-                  <Text style={styles.socialButtonText}>Continue with Google</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.socialButton}>
-                  <Ionicons name="logo-facebook" size={20} color="#000" />
-                  <Text style={styles.socialButtonText}>Continue with Facebook</Text>
-                </TouchableOpacity> */}
-              </>
+              <View style={styles.divider}>
+                <View style={styles.dividerLine} />
+                <Text style={styles.dividerText}>OR</Text>
+                <View style={styles.dividerLine} />
+              </View>
             )}
 
             {/* Register Link */}
@@ -339,6 +425,7 @@ export default function LoginScreen({ navigation }) {
     </KeyboardAvoidingView>
   );
 }
+ 
 
 const styles = StyleSheet.create({
   container: {
@@ -362,7 +449,7 @@ const styles = StyleSheet.create({
   appName: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#000',
+    color: '#1F2937',
     marginTop: 15,
   },
   tagline: {
@@ -376,7 +463,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#000',
+    color: '#1F2937',
     marginBottom: 8,
   },
   subtitle: {
@@ -386,7 +473,7 @@ const styles = StyleSheet.create({
   },
   toggleContainer: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(000,000,000,0.15)',
+    backgroundColor: '#F3F4F6',
     borderRadius: 12,
     padding: 4,
     marginBottom: 20,
@@ -403,13 +490,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
   },
   toggleButtonText: {
-    color: '#000',
+    color: '#1F2937',
     fontSize: 14,
     fontWeight: '600',
     marginLeft: 6,
   },
   toggleButtonTextActive: {
-    color: '#000',
+    color: '#1F2937',
   },
   inputGroup: {
     marginBottom: 15,
@@ -417,19 +504,20 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(000,000,000,0.2)',
+    backgroundColor: '#F3F4F6',
     borderRadius: 12,
     paddingHorizontal: 15,
   },
   input: {
     flex: 1,
     height: 55,
-    color: '#000',
+    color: '#1F2937',
+    backgroundColor: '#F3F4F6',
     fontSize: 16,
     marginLeft: 10,
   },
   countryCode: {
-    color: '#000',
+    color: '#1F2937',
     fontSize: 16,
     fontWeight: '600',
     marginLeft: 10,
@@ -439,17 +527,17 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   forgotPasswordText: {
-    color: '#000',
+    color: '#1F2937',
     fontSize: 14,
     textDecorationLine: 'underline',
   },
   loginButton: {
-    backgroundColor: '#000',
+    backgroundColor: '#F3F4F6',
     borderRadius: 12,
     height: 55,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: '#F3F4F6',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -457,9 +545,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   loginButtonText: {
-    color: '#fff',
+    color: '#6B7280',
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '400',
   },
   backButton: {
     flexDirection: 'row',
@@ -467,7 +555,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   backButtonText: {
-    color: '#000',
+    color: '#1F2937',
     fontSize: 16,
     marginLeft: 8,
     textDecorationLine: 'underline',
@@ -487,12 +575,12 @@ const styles = StyleSheet.create({
   otpInput: {
     width: 50,
     height: 60,
-    backgroundColor: 'rgba(000,000,000,0.2)',
+    backgroundColor: '#F3F4F6',
     borderRadius: 12,
     textAlign: 'center',
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#000',
+    color: '#1F2937',
     borderWidth: 2,
     borderColor: 'rgba(0,0,0,0.3)',
   },
@@ -501,7 +589,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   resendText: {
-    color: '#000',
+    color: '#1F2937',
     fontSize: 14,
     textDecorationLine: 'underline',
   },
@@ -531,7 +619,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(000,000,000,0.2)',
+    backgroundColor: '#F3F4F6',
     borderRadius: 12,
     height: 50,
     marginBottom: 12,
@@ -539,7 +627,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(0,0,0,0.3)',
   },
   socialButtonText: {
-    color: '#000',
+    color: '#1F2937',
     fontSize: 16,
     fontWeight: '600',
     marginLeft: 10,
@@ -555,7 +643,7 @@ const styles = StyleSheet.create({
   },
   registerLink: {
     fontSize: 14,
-    color: '#000',
+    color: '#1F2937',
     fontWeight: 'bold',
     textDecorationLine: 'underline',
   },

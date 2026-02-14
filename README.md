@@ -61,7 +61,7 @@ A modern, feature-rich dating application built with React Native and Expo.
 ## 🏗️ Project Structure
 
 ```
-dating-app/
+Bandhanaa/
 ├── src/
 │   ├── screens/              # All app screens
 │   │   ├── OTPLoginScreen.js
@@ -104,7 +104,7 @@ dating-app/
 
 1. **Clone the repository**
    ```bash
-   cd dating-app
+   cd Bandhanaa
    ```
 
 2. **Install dependencies**

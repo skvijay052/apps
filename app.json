@@ -1,15 +1,14 @@
 {
   "expo": {
-    "name": "app",
-    "slug": "dating-app",
+    "name": "Bandhanaa",
+    "slug": "Bandhanaa",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "icon": "./assets/icons/icon.png",
     "splash": {
       "image": "./assets/icons/splash-logo-t.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#000000"
+      "resizeMode": "contain"
     },
     "ios": {
       "supportsTablet": true,
@@ -17,7 +16,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icons/icon.png",
+        "foregroundImage": "./assets/icons/splash-logo-t.png",
         "backgroundColor": "#000000"
       },
       "package": "com.datingmatch.datingapp",
@@ -26,6 +25,14 @@
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.RECORD_AUDIO"
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": {
+            "scheme": "yourapp"
+          }
+        }
       ]
     },
     "web": {
