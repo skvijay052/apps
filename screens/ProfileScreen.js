@@ -34,10 +34,7 @@ export default function ProfileScreen({ navigation, route }) {
     maritalStatus: 'Never Married',
     bio: 'Ambitious, family-oriented software engineer looking for a life partner who values both career and family. Love traveling, reading, and cooking.',
     photos: [
-      'https://randomuser.me/api/portraits/women/1.jpg',
-      'https://randomuser.me/api/portraits/women/2.jpg',
-      'https://randomuser.me/api/portraits/women/3.jpg',
-      'https://randomuser.me/api/portraits/women/4.jpg',
+      'https://randomuser.me/api/portraits/women/1.jpg'
     ],
     verified: true,
     premium: true,

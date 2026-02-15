@@ -66,20 +66,20 @@ function MainTabs() {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#FF6B6B',
-        tabBarInactiveTintColor: '#999',
+        tabBarActiveTintColor: '#000',
+        tabBarInactiveTintColor: '#9CA3AF',
+        tabBarShowLabel: false, 
         headerShown: false,
         tabBarStyle: {
           backgroundColor: '#FFF',
           borderTopWidth: 1,
-          borderTopColor: '#F0F0F0',
-          paddingBottom: 5,
-          paddingTop: 5,
+          borderTopColor: '#fff',
+          paddingBottom: 15,
           height: 60,
         },
         tabBarLabelStyle: {
           fontSize: 12,
-          fontWeight: '600',
+          fontWeight: '600',     
         }
       })}
     >
