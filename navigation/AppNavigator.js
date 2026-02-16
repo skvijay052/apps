@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -17,6 +17,7 @@ import ChatScreen from '../screens/ChatScreen';
 import NotificationsScreen from '../screens/NotificationsScreen';
 import PremiumScreen from '../screens/PremiumScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import SplashScreen from '../screens/SplashScreen';  
 import SettingScreen from '../screens/Settingsscreen'; 
 import AboutScreen from '../screens/AboutScreen';
 
@@ -25,6 +26,7 @@ import HelpSupportScreen from '../screens/HelpsupportScreen';
 import LikesScreen from '../screens/LikeScreen';
 import HomeScreen from '../screens/HomeScreen';
 import RegisterScreen from '../screens/RegisterScreen';
+import ProfileDetailScreen from '../screens/ProfileDetailScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -101,6 +103,8 @@ function MainTabs() {
 // Main App Navigator
 export default function AppNavigator() {
   const isAuthenticated = useStore(state => state.isAuthenticated);
+  const [showSplash, setShowSplash] = useState(true);
+
   const darkTheme = {
     ...DarkTheme,
     colors: {
@@ -108,6 +112,21 @@ export default function AppNavigator() {
       background: '#000000',
     },
   };
+  
+  useEffect(() => {
+    // Hide splash screen after 3 seconds
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Show splash screen first
+  if (showSplash) {
+    return <SplashScreen />;
+  }
+
 
   return (
     <NavigationContainer theme={darkTheme}>
@@ -125,6 +144,7 @@ export default function AppNavigator() {
             <Stack.Screen name="HelpsupportScreen" component={HelpSupportScreen} />
             <Stack.Screen name="AboutScreen" component={AboutScreen} /> 
             <Stack.Screen name="LikesScreen" component={LikesScreen} /> 
+            <Stack.Screen name="ProfileDetailScreen" component={ProfileDetailScreen} />
           </>
         )}
       </Stack.Navigator>

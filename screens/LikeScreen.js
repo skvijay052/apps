@@ -13,7 +13,8 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
-const { width } = Dimensions.get('window');
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const CARD_WIDTH = (SCREEN_WIDTH - 30) / 1; // 2 columns with padding
 
 export default function LikesScreen({ navigation }) {
   const [activeTab, setActiveTab] = useState('received'); // 'received' or 'sent'
@@ -26,8 +27,11 @@ export default function LikesScreen({ navigation }) {
       name: 'Ananya Reddy',
       age: 26,
       photo: 'https://randomuser.me/api/portraits/women/5.jpg',
-      profession: 'Doctor',
-      location: 'Hyderabad',
+      country: 'India',
+      caste: 'Naidu',
+      state: 'Andhra Pradesh',
+      job: 'Doctor',
+      city: 'Hyderabad',
       matchScore: 92,
       education: 'MBBS',
       height: '5\'4"',
@@ -41,8 +45,11 @@ export default function LikesScreen({ navigation }) {
       name: 'Priya Singh',
       age: 25,
       photo: 'https://randomuser.me/api/portraits/women/6.jpg',
-      profession: 'Teacher',
-      location: 'Delhi',
+      country: 'India',
+      caste: 'Naidu',
+      state: 'Andhra Pradesh',
+      job: 'Teacher',
+      city: 'Delhi',
       matchScore: 88,
       education: 'B.Ed, M.A.',
       height: '5\'3"',
@@ -56,8 +63,11 @@ export default function LikesScreen({ navigation }) {
       name: 'Divya Patel',
       age: 27,
       photo: 'https://randomuser.me/api/portraits/women/7.jpg',
-      profession: 'Software Engineer',
-      location: 'Bangalore',
+      country: 'India',
+      caste: 'Naidu',
+      state: 'Andhra Pradesh',
+      job: 'Software Engineer',
+      city: 'Bangalore',
       matchScore: 95,
       education: 'B.Tech, IIT',
       height: '5\'5"',
@@ -71,8 +81,11 @@ export default function LikesScreen({ navigation }) {
       name: 'Neha Sharma',
       age: 24,
       photo: 'https://randomuser.me/api/portraits/women/8.jpg',
-      profession: 'Marketing Manager',
-      location: 'Mumbai',
+      country: 'India',
+      caste: 'Naidu',
+      state: 'Andhra Pradesh',
+      job: 'Marketing Manager',
+      city: 'Mumbai',
       matchScore: 85,
       education: 'MBA',
       height: '5\'6"',
@@ -86,8 +99,11 @@ export default function LikesScreen({ navigation }) {
       name: 'Riya Gupta',
       age: 28,
       photo: 'https://randomuser.me/api/portraits/women/9.jpg',
-      profession: 'Architect',
-      location: 'Pune',
+      country: 'India',
+      caste: 'Naidu',
+      state: 'Andhra Pradesh',
+      job: 'Architect',
+      city: 'Pune',
       matchScore: 90,
       education: 'B.Arch',
       height: '5\'5"',
@@ -105,8 +121,11 @@ export default function LikesScreen({ navigation }) {
       name: 'Rahul Verma',
       age: 29,
       photo: 'https://randomuser.me/api/portraits/men/1.jpg',
-      profession: 'Business Analyst',
-      location: 'Bangalore',
+      country: 'India',
+      caste: 'Naidu',
+      state: 'Andhra Pradesh',
+      job: 'Business Analyst',
+      city: 'Bangalore',
       matchScore: 87,
       education: 'MBA',
       height: '5\'10"',
@@ -120,8 +139,11 @@ export default function LikesScreen({ navigation }) {
       name: 'Arjun Kumar',
       age: 30,
       photo: 'https://randomuser.me/api/portraits/men/2.jpg',
-      profession: 'Product Manager',
-      location: 'Delhi',
+      country: 'India',
+      caste: 'Naidu',
+      state: 'Andhra Pradesh',
+      job: 'Product Manager',
+      city: 'Delhi',
       matchScore: 91,
       education: 'B.Tech, IIT',
       height: '6\'0"',
@@ -135,8 +157,11 @@ export default function LikesScreen({ navigation }) {
       name: 'Vikram Shah',
       age: 28,
       photo: 'https://randomuser.me/api/portraits/men/3.jpg',
-      profession: 'Consultant',
-      location: 'Mumbai',
+      country: 'India',
+      caste: 'Naidu',
+      state: 'Andhra Pradesh',
+      job: 'Consultant',
+      city: 'Mumbai',
       matchScore: 89,
       education: 'MBA',
       height: '5\'11"',
@@ -188,21 +213,14 @@ export default function LikesScreen({ navigation }) {
           
           {/* Match Score Badge */}
           <View style={styles.matchScoreBadge}>
-            <Ionicons name="heart" size={12} color="#FFF" />
-            <Text style={styles.matchScoreText}>{item.matchScore}%</Text>
+            <View style={styles.onlineIndicator} />
+            <Text style={styles.matchScoreText}>Online</Text>
           </View>
 
           {/* Online Status */}
           {item.isOnline && (
             <View style={styles.onlineIndicator} />
-          )}
-
-          {/* Premium Badge */}
-          {item.isPremium && (
-            <View style={styles.premiumBadge}>
-              <Ionicons name="diamond" size={16} color="#FFD700" />
-            </View>
-          )}
+          )} 
 
           {/* Gradient Overlay */}
           <LinearGradient
@@ -217,11 +235,11 @@ export default function LikesScreen({ navigation }) {
             </View>
             <View style={styles.infoRow}>
               <Ionicons name="briefcase-outline" size={12} color="#FFF" />
-              <Text style={styles.overlayText}>{item.profession}</Text>
+              <Text style={styles.overlayText}>{item.job}</Text>
             </View>
             <View style={styles.infoRow}>
               <Ionicons name="location-outline" size={12} color="#FFF" />
-              <Text style={styles.overlayText}>{item.location}</Text>
+              <Text style={styles.overlayText}>{item.city}</Text>
             </View>
           </View>
         </View>
@@ -255,7 +273,7 @@ export default function LikesScreen({ navigation }) {
           onPress={() => handleRejectLike(item.id)}
           activeOpacity={0.8}
         >
-          <Ionicons name="close" size={28} color="#FF5252" />
+          <Ionicons name="close" size={28} color="#000000" />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -263,7 +281,7 @@ export default function LikesScreen({ navigation }) {
           onPress={() => handleViewProfile(item)}
           activeOpacity={0.8}
         >
-          <Ionicons name="person-outline" size={20} color="#E91E63" />
+          <Ionicons name="person-outline" size={20} color="#000000" />
           <Text style={styles.viewProfileText}>View Full Profile</Text>
         </TouchableOpacity>
 
@@ -272,81 +290,116 @@ export default function LikesScreen({ navigation }) {
           onPress={() => handleAcceptLike(item.id)}
           activeOpacity={0.8}
         >
-          <Ionicons name="heart" size={28} color="#FFF" />
+          <Ionicons name="heart-outline" size={28} color="#000000" />
         </TouchableOpacity>
       </View>
     </View>
   );
 
   const renderSentLikeCard = ({ item }) => (
-    <View style={styles.sentCard}>
-      <TouchableOpacity
-        style={styles.sentCardContent}
-        activeOpacity={0.7}
-        onPress={() => handleViewProfile(item)}
-      >
-        <Image source={{ uri: item.photo }} style={styles.sentProfileImage} />
-        
-        {/* Online Status */}
+    // <View style={styles.sentCard}>
+    //   <TouchableOpacity
+    //     style={styles.sentCardContent}
+    //     activeOpacity={0.7}
+    //     onPress={() => handleViewProfile(item)}
+    //   >
+    //       
+    //     <View style={styles.sentCardInfo}> 
+    //       <View style={styles.sentDetailRow}>
+    //         <Ionicons name="briefcase-outline" size={12} color="#666" />
+    //         <Text style={styles.sentDetailText}>{item.job}</Text>
+    //       </View>
+          
+    //       <View style={styles.sentDetailRow}>
+    //         <Ionicons name="location-outline" size={12} color="#666" />
+    //         <Text style={styles.sentDetailText}>{item.location}</Text>
+    //       </View>
+
+    //       <View style={styles.sentDetailRow}>
+    //         <Ionicons name="heart" size={12} color="#000000" />
+    //         <Text style={styles.sentDetailText}>{item.matchScore}% Match</Text>
+    //       </View>
+
+    //       <View style={styles.statusContainer}>
+    //         {item.status === 'pending' && (
+    //           <View style={styles.statusBadge}>
+    //             <Ionicons name="time-outline" size={12} color="#FF9800" />
+    //             <Text style={[styles.statusText, { color: '#FF9800' }]}>
+    //               Pending
+    //             </Text>
+    //           </View>
+    //         )}
+    //         {item.status === 'accepted' && (
+    //           <View style={[styles.statusBadge, { backgroundColor: '#E8F5E9' }]}>
+    //             <Ionicons name="checkmark-circle" size={12} color="#4CAF50" />
+    //             <Text style={[styles.statusText, { color: '#4CAF50' }]}>
+    //               Matched!
+    //             </Text>
+    //           </View>
+    //         )}
+    //       </View>
+    //     </View>
+
+    //     {item.status === 'accepted' && (
+    //       <TouchableOpacity
+    //         style={styles.messageButton}
+    //         onPress={() => handleSendMessage(item.id)}
+    //       >
+    //         <Ionicons name="chatbubble" size={20} color="#000000" />
+    //       </TouchableOpacity>
+    //     )}
+    //   </TouchableOpacity>
+
+    //   <Text style={styles.sentTime}>Sent {item.likedAt}</Text>
+    // </View>
+     <TouchableOpacity
+      key={item.id}
+      onPress={() => navigation.navigate('MatchDetails', { profile: item })}
+      style={styles.popularCard}
+      activeOpacity={0.9} 
+    > 
+      <View>
+        <Image source={{ uri: item.photo }} style={styles.popularImage} /> 
         {item.isOnline && (
-          <View style={styles.sentOnlineIndicator} />
+          <View style={styles.onlineBadge}>
+            <View style={styles.onlineDot} />
+          </View>
         )}
-
-        <View style={styles.sentCardInfo}>
-          <View style={styles.sentNameRow}>
-            <Text style={styles.sentName}>{item.name}, {item.age}</Text>
-            {item.isPremium && (
-              <Ionicons name="diamond" size={14} color="#FFD700" />
-            )}
+      </View>
+      <View style={styles.popularTextWrap}>
+        <Text style={styles.popularName} numberOfLines={1}>
+          {item.name}
+        </Text>
+        <Text style={styles.descContent}>{item.age} Yrs, {item.height} cm</Text> 
+           <View style={styles.sentNameRow}> 
+         </View>
+        <View style={styles.locationRow}> 
+            <Text style={styles.cardPlace}>{item.job}, {item.city}</Text>
+        </View> 
+        <View style={styles.locationRow}> 
+            <Text style={styles.cardPlace}>{item.state}, {item.country}</Text>
+        </View>  
+        <View><Text style={styles.sentTime}>Sent {item.likedAt}</Text></View>
+      </View> 
+       <View style={styles.statusContainer}>
+        {item.status === 'pending' && (
+          <View style={styles.statusBadge}>
+            <Ionicons name="time-outline" size={12} color="#FF9800" />
+            <Text style={[styles.statusText, { color: '#FF9800' }]}>
+              Pending
+            </Text>
           </View>
-          
-          <View style={styles.sentDetailRow}>
-            <Ionicons name="briefcase-outline" size={12} color="#666" />
-            <Text style={styles.sentDetailText}>{item.profession}</Text>
-          </View>
-          
-          <View style={styles.sentDetailRow}>
-            <Ionicons name="location-outline" size={12} color="#666" />
-            <Text style={styles.sentDetailText}>{item.location}</Text>
-          </View>
-
-          <View style={styles.sentDetailRow}>
-            <Ionicons name="heart" size={12} color="#E91E63" />
-            <Text style={styles.sentDetailText}>{item.matchScore}% Match</Text>
-          </View>
-
-          <View style={styles.statusContainer}>
-            {item.status === 'pending' && (
-              <View style={styles.statusBadge}>
-                <Ionicons name="time-outline" size={12} color="#FF9800" />
-                <Text style={[styles.statusText, { color: '#FF9800' }]}>
-                  Pending
-                </Text>
-              </View>
-            )}
-            {item.status === 'accepted' && (
-              <View style={[styles.statusBadge, { backgroundColor: '#E8F5E9' }]}>
-                <Ionicons name="checkmark-circle" size={12} color="#4CAF50" />
-                <Text style={[styles.statusText, { color: '#4CAF50' }]}>
-                  Matched!
-                </Text>
-              </View>
-            )}
-          </View>
-        </View>
-
+        )}
         {item.status === 'accepted' && (
-          <TouchableOpacity
-            style={styles.messageButton}
-            onPress={() => handleSendMessage(item.id)}
-          >
-            <Ionicons name="chatbubble" size={20} color="#E91E63" />
-          </TouchableOpacity>
+          <View style={[styles.statusBadge, { backgroundColor: '#E8F5E9' }]}>
+            <Ionicons name="checkmark-circle" size={12} color="#4CAF50" />
+            <Text style={[styles.statusText, { color: '#4CAF50' }]}>
+              Matched!
+            </Text>
+          </View>
         )}
-      </TouchableOpacity>
-
-      <Text style={styles.sentTime}>Sent {item.likedAt}</Text>
-    </View>
+      </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -413,29 +466,19 @@ export default function LikesScreen({ navigation }) {
               <RefreshControl
                 refreshing={refreshing}
                 onRefresh={onRefresh}
-                colors={['#E91E63']}
-                tintColor="#E91E63"
+                colors={['#000000']}
+                tintColor="#000000"
               />
             }
           />
         ) : (
-          <View style={styles.emptyContainer}>
-            <Ionicons name="heart-outline" size={80} color="#DDD" />
-            <Text style={styles.emptyTitle}>No Likes Yet</Text>
-            <Text style={styles.emptySubtitle}>
-              When someone likes your profile, they'll appear here
-            </Text>
-            <TouchableOpacity
-              style={styles.upgradeButton}
-              onPress={() => navigation.navigate('Premium')}
-              activeOpacity={0.8}
-            >
-              <Ionicons name="diamond" size={20} color="#FFF" />
-              <Text style={styles.upgradeButtonText}>
-                Upgrade to Premium
-              </Text>
-            </TouchableOpacity>
-          </View>
+        <View style={styles.emptyContainer}>
+          <Ionicons name="people-outline" size={80} color="#CCC" />
+          <Text style={styles.emptyTitle}>No Profiles Found</Text>
+          <Text style={styles.emptySubtitle}>
+            Try adjusting your filters or check back later
+          </Text>
+        </View>
         )
       ) : (
         sentLikes.length > 0 ? (
@@ -449,8 +492,8 @@ export default function LikesScreen({ navigation }) {
               <RefreshControl
                 refreshing={refreshing}
                 onRefresh={onRefresh}
-                colors={['#E91E63']}
-                tintColor="#E91E63"
+                colors={['#000000']}
+                tintColor="#000000"
               />
             }
           />
@@ -473,30 +516,7 @@ export default function LikesScreen({ navigation }) {
             </TouchableOpacity>
           </View>
         )
-      )}
-
-      {/* Premium Banner */}
-      {receivedLikes.length >= 5 && (
-        <View style={styles.premiumBanner}>
-          <View style={styles.premiumBannerContent}>
-            <Ionicons name="lock-closed" size={24} color="#FFF" />
-            <View style={styles.premiumBannerText}>
-              <Text style={styles.premiumBannerTitle}>
-                {receivedLikes.length - 5}+ more likes
-              </Text>
-              <Text style={styles.premiumBannerSubtitle}>
-                Upgrade to see everyone who liked you
-              </Text>
-            </View>
-          </View>
-          <TouchableOpacity
-            style={styles.premiumBannerButton}
-            onPress={() => navigation.navigate('Premium')}
-          >
-            <Text style={styles.premiumBannerButtonText}>Upgrade</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+      )} 
     </View>
   );
 }
@@ -510,15 +530,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#FFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    paddingHorizontal: 20, 
     paddingTop: 50,
+    paddingBottom: 15, 
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#333',
   },
@@ -527,9 +544,7 @@ const styles = StyleSheet.create({
   },
   tabContainer: {
     flexDirection: 'row',
-    backgroundColor: '#FFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    backgroundColor: '#F5F5F5', 
   },
   tab: {
     flex: 1,
@@ -546,7 +561,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   activeTabText: {
-    color: '#E91E63',
+    color: '#000000',
     fontWeight: '600',
   },
   tabIndicator: {
@@ -555,20 +570,82 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 3,
-    backgroundColor: '#E91E63',
+    backgroundColor: '#000000',
   },
   listContent: {
     padding: 16,
+  }, 
+  popularCard: {
+    width: CARD_WIDTH,
+    height: 'auto',
+    borderRadius: 15, 
+    backgroundColor: '#ffffffe6',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.58)',
+    padding: 14,
+    marginRight: 14,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 14,
+  },
+  
+  popularImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
+  },
+  popularTextWrap: {
+    flex: 1,
+    marginLeft: 16,
+    marginRight: 8,
+  },
+  popularName: {
+    fontSize: 32 / 1.6,
+    fontWeight: '700',
+    color: '#21212A',
+  },
+  popularRole: { 
+    fontSize: 26 / 1.6,
+    color: '#73737C',
+    fontWeight: '500',
+  }, 
+  locationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 2, 
+  }, 
+  cardPlace: {
+    fontSize: 12,
+    color: '#000', 
+    fontWeight: 400,
+  },
+  notificationButton: {
+    position: 'relative',
+    padding: 4,
+    backgroundColor: 'transparent',
+  },
+  notificationBadge: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    backgroundColor: '#000',
+    borderRadius: 10,
+    width: 16,
+    height: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  notificationBadgeText: {
+    color: '#FFF',
+    fontSize: 10,
+    fontWeight: 'bold',
   },
   card: {
     backgroundColor: '#FFF',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.58)',
     borderRadius: 16,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    marginBottom: 20,  
     overflow: 'hidden',
   },
   imageContainer: {
@@ -583,31 +660,26 @@ const styles = StyleSheet.create({
   },
   matchScoreBadge: {
     position: 'absolute',
-    top: 16,
-    right: 16,
+    top: 10,
+    right: 10,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#E91E63',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    backgroundColor: '#4CAF50',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
     borderRadius: 20,
     gap: 4,
   },
   matchScoreText: {
     color: '#FFF',
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: 'bold',
   },
-  onlineIndicator: {
-    position: 'absolute',
-    top: 16,
-    left: 16,
-    width: 12,
-    height: 12,
+  onlineIndicator: { 
+    width: 8,
+    height: 8,
     borderRadius: 6,
-    backgroundColor: '#4CAF50',
-    borderWidth: 2,
-    borderColor: '#FFF',
+    backgroundColor: '#ffffff',
   },
   premiumBadge: {
     position: 'absolute',
@@ -640,6 +712,12 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#FFF',
+  }, 
+  descContent: {
+    fontSize: 12,
+    fontWeight: '400',
+    color: '#000',
+    marginBottom: 4,
   },
   infoRow: {
     flexDirection: 'row',
@@ -684,40 +762,36 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#FFE8E8',
+    backgroundColor: '#ffffff',
+    borderColor: '#66666627',
+    borderWidth: 1,
     alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#FF5252',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
+    justifyContent: 'center', 
   },
   acceptButton: {
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#E91E63',
+    backgroundColor: '#ffffff',
+    borderColor: '#66666627',
+    borderWidth: 1,
     alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#E91E63',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
+    justifyContent: 'center', 
   },
   viewProfileButton: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFE8F0',
+    backgroundColor: '#ffffff',
+    borderColor: '#66666627',
+    borderWidth: 1,
     paddingVertical: 14,
     borderRadius: 28,
     gap: 8,
   },
   viewProfileText: {
-    color: '#E91E63',
+    color: '#000000',
     fontSize: 15,
     fontWeight: '600',
   },
@@ -806,9 +880,7 @@ const styles = StyleSheet.create({
   },
   sentTime: {
     fontSize: 12,
-    color: '#999',
-    marginTop: 8,
-    marginLeft: 92,
+    color: '#999', 
   },
   emptyContainer: {
     flex: 1,
@@ -833,12 +905,12 @@ const styles = StyleSheet.create({
   upgradeButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#E91E63',
+    backgroundColor: '#000000',
     paddingHorizontal: 24,
     paddingVertical: 14,
     borderRadius: 24,
     gap: 8,
-    shadowColor: '#E91E63',
+    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -852,7 +924,7 @@ const styles = StyleSheet.create({
   exploreButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#E91E63',
+    backgroundColor: '#000000',
     paddingHorizontal: 24,
     paddingVertical: 14,
     borderRadius: 24,
@@ -868,7 +940,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#E91E63',
+    backgroundColor: '#000000',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -905,7 +977,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   premiumBannerButtonText: {
-    color: '#E91E63',
+    color: '#000000',
     fontSize: 14,
     fontWeight: '600',
   },

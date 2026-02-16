@@ -10,9 +10,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import useStore from '../store/useStore';
-import { count } from 'firebase/firestore';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_WIDTH = (SCREEN_WIDTH - 30) / 1; // 2 columns with padding
@@ -27,6 +25,7 @@ const MOCK_PROFILES = [
     bio: 'Adventure seeker | Coffee enthusiast ☕',
     city: 'Chennai',
     state: 'Andhra Pradesh',
+    education: 'B.E',
     country: 'India',
     height: '5.5',    
     job: 'Software Engineer',
@@ -43,6 +42,7 @@ const MOCK_PROFILES = [
     bio: 'Artist & dreamer 🎨',
     city: 'Chennai',
     state: 'Andhra Pradesh',
+    education: 'B.E',
     country: 'India',
     height: '5.5',    
     job: 'Software Engineer',
@@ -59,6 +59,7 @@ const MOCK_PROFILES = [
     bio: 'Fitness trainer | Dog mom 🐕',
     city: 'Chennai',
     state: 'Andhra Pradesh',
+    education: 'B.E',
     country: 'India',
     height: '5.5',    
     job: 'Software Engineer',
@@ -75,6 +76,7 @@ const MOCK_PROFILES = [
     bio: 'Tech enthusiast | Love coding 💻',
     city: 'Chennai',
     state: 'Andhra Pradesh',
+    education: 'B.E',
     country: 'India',
     height: '5.5',    
     job: 'Software Engineer',
@@ -91,6 +93,7 @@ const MOCK_PROFILES = [
     bio: 'Entrepreneur | Gym freak 💪',
     city: 'Chennai',
     state: 'Andhra Pradesh',
+    education: 'B.E',
     country: 'India',
     height: '5.5',    
     job: 'Software Engineer',
@@ -107,6 +110,7 @@ const MOCK_PROFILES = [
     bio: 'Musician | Nature lover 🎸',
     city: 'Chennai',
     state: 'Andhra Pradesh',
+    education: 'B.E',
     country: 'India',
     height: '5.5',    
     job: 'Software Engineer',
@@ -123,6 +127,7 @@ const MOCK_PROFILES = [
     bio: 'Model | Fashionista 👗',
     city: 'Chennai',
     state: 'Andhra Pradesh',
+    education: 'B.E',
     country: 'India',
     height: '5.5',    
     job: 'Software Engineer',
@@ -139,6 +144,7 @@ const MOCK_PROFILES = [
     bio: 'Chef | Foodie at heart 🍕',
     city: 'Chennai',
     state: 'Andhra Pradesh',
+    education: 'B.E',
     country: 'India',
     height: '5.5',    
     job: 'Software Engineer',
@@ -155,6 +161,7 @@ const MOCK_PROFILES = [
     bio: 'Architect | Design lover 📐',
     city: 'Chennai',
     state: 'Andhra Pradesh',
+    education: 'B.E',
     country: 'India',
     height: '5.5',    
     job: 'Software Engineer',
@@ -171,6 +178,7 @@ const MOCK_PROFILES = [
     bio: 'Doctor | Saving lives ⚕️',
     city: 'Chennai',
     state: 'Andhra Pradesh',
+    education: 'B.E',
     country: 'India',
     height: '5.5',    
     job: 'Software Engineer',
@@ -227,9 +235,14 @@ export default function HomeScreen({ navigation }) {
   }, [filter]);
 
   const renderProfileCard = ({ item }) => ( 
-     <TouchableOpacity
+    <TouchableOpacity
       key={item.id}
-      onPress={() => navigation.navigate('MatchDetails', { profile: item })}
+      onPress={() =>
+        navigation.navigate('ProfileDetailScreen', {
+          profileId: item.id,
+          profile: item,
+        })
+      }
       style={styles.popularCard}
       activeOpacity={0.9} 
     > 
@@ -254,7 +267,7 @@ export default function HomeScreen({ navigation }) {
         </View> 
       </View> 
        <TouchableOpacity style={styles.likeButton}>
-         <Ionicons name="heart-outline" size={14} color="#000" />
+         <Ionicons name="heart-outline" size={20} color="#000" />
        </TouchableOpacity> 
     </TouchableOpacity>
   );
@@ -334,7 +347,7 @@ export default function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ECECEF',
+    backgroundColor: '#F5F5F5',
   },
   header: {
     flexDirection: 'row',
@@ -342,18 +355,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingTop: 50,
-    paddingBottom: 15,
-    backgroundColor: '#ECECEF',
+    paddingBottom: 15,  
   }, 
   logoText: {
-    width: 120,
-    height: 30,
+    width: 150,
+    height: 40,
   },
   popularCard: {
     width: CARD_WIDTH,
     height: 'auto',
-    borderRadius: 15,
-    backgroundColor: '#EFEFF1',
+    borderRadius: 15, 
+    backgroundColor: '#ffffffe6',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.58)',
     padding: 14,
@@ -420,7 +432,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: 20,
     paddingVertical: 15,
-    backgroundColor: '#ECECEF',
+    backgroundColor: '#F5F5F5',
     gap: 10,
   },
   filterButton: {
@@ -429,9 +441,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: '#dfdfe5ff',
+    backgroundColor: '#EFEFF1',
     borderWidth: 1,
-    borderColor: '#dfdfe5ff',
+    borderColor: '#EFEFF1',
   },
   filterButtonActive: {
     backgroundColor: '#fff',

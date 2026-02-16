@@ -9,28 +9,34 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { auth } from '../config/firebase';
 import useStore from '../store/useStore';
+import { LinearGradient } from 'expo-linear-gradient';
 
-export default function ProfileScreen({ navigation, route }) {
-  // Mock user data - replace with actual data from API/context
+export default function ProfileDetailScreen({ navigation, route }) {
+  const selectedProfile = route?.params?.profile;
+  const logout = useStore(state => state.logout);
+  const currentUser = useStore(state => state.user);
+
+  // Static user data
   const [user] = useState({
-    id: 1,
-    name: 'Priya Sharma',
-    age: 27,
-    gender: 'Female',
-    profession: 'Software Engineer',
+    id: selectedProfile?.id ?? currentUser?.id ?? 1,
+    name: selectedProfile?.name ?? currentUser?.name ?? 'Priya Sharma',
+    age: selectedProfile?.age ?? 27,
+    gender: selectedProfile?.gender ?? currentUser?.gender ?? 'Female',
+    profession: selectedProfile?.job ?? 'Software Engineer',
     company: 'Google India',
     education: 'B.Tech, Computer Science',
     college: 'IIT Delhi',
-    location: 'Bangalore, Karnataka',
-    height: '5\'5"',
+    location: selectedProfile ? `${selectedProfile.city}, ${selectedProfile.state}` : 'Bangalore, Karnataka',
+    height: selectedProfile?.height ?? '5\'5"',
     religion: 'Hindu',
     caste: 'Brahmin',
     motherTongue: 'Hindi',
     maritalStatus: 'Never Married',
-    bio: 'Ambitious, family-oriented software engineer looking for a life partner who values both career and family. Love traveling, reading, and cooking.',
+    bio: selectedProfile?.bio ?? 'Ambitious, family-oriented software engineer looking for a life partner who values both career and family. Love traveling, reading, and cooking.',
     photos: [
-      'https://randomuser.me/api/portraits/women/1.jpg'
+      selectedProfile?.photo ?? 'https://randomuser.me/api/portraits/women/1.jpg'
     ],
     verified: true,
     premium: true,
@@ -63,23 +69,10 @@ export default function ProfileScreen({ navigation, route }) {
       occupation: 'Professional',
       location: 'Bangalore, Mumbai, Delhi',
     },
-  });
-  const logout = useStore(state => state.logout);
-
-  const handleLogout = () => {
-    Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Logout', onPress: logout, style: 'destructive' },
-      ]
-    );
-  };
-
+  }); 
 
   const handleEditProfile = () => {
-    navigation.navigate('EditProfile');
+    navigation.navigate('EditProfile', { user });
   };
 
   const handleSettings = () => {
@@ -100,103 +93,101 @@ export default function ProfileScreen({ navigation, route }) {
     <Text style={styles.sectionTitle}>{title}</Text>
   );
 
-  const MenuItem = ({ icon, title, onPress, showBadge }) => (
+  const MenuItem = ({ icon, title, onPress }) => (
     <TouchableOpacity style={styles.menuItem} onPress={onPress}>
       <View style={styles.menuItemLeft}>
         <Ionicons name={icon} size={20} color="#666" />
         <Text style={styles.menuItemText}>{title}</Text>
       </View>
       <View style={styles.menuItemRight}>
-        {showBadge && <View style={styles.premiumBadge}><Text style={styles.premiumBadgeText}>PRO</Text></View>}
         <Ionicons name="chevron-forward" size={20} color="#666" />
       </View>
     </TouchableOpacity>
   );
-    
+
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>My Profile</Text>
+      <View style={styles.header}> 
         <TouchableOpacity
-          style={styles.settingsButton}
-          onPress={handleSettings}
+          onPress={() => {
+            if (navigation.canGoBack()) {
+              navigation.goBack();
+            } else {
+              navigation.navigate('Main', { screen: 'Home' });
+            }
+          }}
+          style={styles.backButton}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <Ionicons name="settings-outline" size={24} color="#333" />
+          <Ionicons name="arrow-back" size={24} color="#666" />
         </TouchableOpacity>
+        <View style={styles.headerLeft}> 
+           <Image 
+              source={require('../assets/icons/text-logo-transparent.png')}
+              style={styles.logoText} /> 
+        </View> 
       </View>
+
+     {/* Profile Image */}
+        <View style={styles.imageContainer}>
+          <Image source={{ uri: user.photos[0] }} style={styles.profileImage} /> 
+          {/* Match Score Badge */}
+          <View style={styles.matchScoreBadge}>
+            <View style={styles.onlineIndicator} />
+            <Text style={styles.matchScoreText}>Online</Text>
+          </View> 
+           
+          <LinearGradient
+            colors={['transparent', 'rgba(0,0,0,0.7)']}
+            style={styles.imageGradient}
+          />
+
+          {/* Profile Info on Image */}
+          <View style={styles.imageOverlay}>
+            <View style={styles.nameRow}>
+              <Text style={styles.cardName}>{user.name}, <Text style={styles.overlayText}>{user.age} Yrs</Text></Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Ionicons name="briefcase-outline" size={12} color="#FFF" />
+              <Text style={styles.overlayText}>{user.profession}</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Ionicons name="location-outline" size={12} color="#FFF" />
+              <Text style={styles.overlayText}>{user.location}</Text>
+            </View>
+          </View>
+        </View>
+
 
       <ScrollView
         style={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.profileCard}>
-          <View style={styles.profileTopRow}>
-            <Image
-              source={{ uri: user.photos[0] }}
-              style={styles.avatar}
-              resizeMode="cover"
-            />
-            <View style={styles.profileStatsRow}>
-              <View style={styles.profileStatCol}>
-                <Text style={styles.profileStatValue}>3,022</Text>
-                <Text style={styles.profileStatKey}>Posts</Text>
-              </View>
-              <View style={styles.profileStatCol}>
-                <Text style={styles.profileStatValue}>67.6K</Text>
-                <Text style={styles.profileStatKey}>Followers</Text>
-              </View>
-              <View style={styles.profileStatCol}>
-                <Text style={styles.profileStatValue}>2,454</Text>
-                <Text style={styles.profileStatKey}>Following</Text>
-              </View>
-            </View>
-          </View>
-
-          <View style={styles.profileNameRow}>
-            <Text style={styles.profileName}>{user.name}</Text>
-            {user.verified && (
-              <Ionicons name="checkmark-circle" size={18} color="#2DBE60" />
-            )}
-          </View>
-          <Text style={styles.profileRole}>Digital creator</Text>
-          <Text style={styles.profileBio} numberOfLines={3}>{user.bio}</Text>
-
+        {/* Profile Card */}
+        <View style={styles.profileCard}>  
           <View style={styles.profileActionRow}>
-            <TouchableOpacity style={[styles.profileActionBtn, styles.followBtn]} activeOpacity={0.8}>
-              <Text style={styles.followBtnText}>Follow</Text>
+            <TouchableOpacity 
+              style={[styles.profileActionBtn, styles.editBtn]} 
+              activeOpacity={0.8}
+              onPress={handleEditProfile}
+            >
+              <Text style={styles.editBtnText}>Send Insterest</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.profileActionBtn} activeOpacity={0.8}>
-              <Text style={styles.profileActionText}>Message</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.profileActionBtn} activeOpacity={0.8}>
-              <Text style={styles.profileActionText}>Email</Text>
+            <TouchableOpacity 
+              style={styles.profileActionBtn} 
+              activeOpacity={0.8}
+              onPress={() => navigation.navigate('UploadPhotos')}
+            >
+              <Text style={styles.profileActionText}>Contact Number</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.iconActionBtn}
               activeOpacity={0.8}
-              onPress={handleEditProfile}
+              onPress={() => navigation.navigate('Setting')}
             >
-              <Ionicons name="create-outline" size={18} color="#333" />
+              <Ionicons name="logo-whatsapp" size={18} color="#333" />
             </TouchableOpacity>
-          </View>
-        </View> 
-
-        {/* Stats Row */}
-        <View style={styles.statsContainer}>
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{user.profileViews}</Text>
-            <Text style={styles.statLabel}>Profile Views</Text>
-          </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{user.matchesCount}</Text>
-            <Text style={styles.statLabel}>Matches</Text>
-          </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{user.interestsReceived}</Text>
-            <Text style={styles.statLabel}>Interests</Text>
           </View>
         </View>
 
@@ -264,72 +255,7 @@ export default function ProfileScreen({ navigation, route }) {
           <InfoRow icon="school-outline" label="Education" value={user.lookingFor.education} />
           <InfoRow icon="briefcase-outline" label="Occupation" value={user.lookingFor.occupation} />
           <InfoRow icon="location-outline" label="Location" value={user.lookingFor.location} />
-          
-          <TouchableOpacity
-            style={styles.editPreferencesButton}
-            onPress={() => navigation.navigate('EditPreferences')}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.editPreferencesText}>Edit Preferences</Text>
-            <Ionicons name="chevron-forward" size={20} color="#000" />
-          </TouchableOpacity>
         </View>
-
-        {/* Quick Actions */}
-        <View style={styles.section}>
-          <SectionTitle title="Quick Actions" />
-          
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => navigation.navigate('ManagePhotos')}
-            activeOpacity={0.7}
-          >
-            <Ionicons name="images-outline" size={20} color="#666" />
-            <Text style={styles.actionText}>Manage Photos</Text>
-            <Ionicons name="chevron-forward" size={20} color="#666" />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => navigation.navigate('Verification')}
-            activeOpacity={0.7}
-          >
-            <Ionicons name="shield-checkmark-outline" size={20} color="#666" />
-            <Text style={styles.actionText}>Verify Profile</Text>
-            <Ionicons name="chevron-forward" size={20} color="#666" />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => navigation.navigate('PrivacySettings')}
-            activeOpacity={0.7}
-          >
-            <Ionicons name="lock-closed-outline" size={20} color="#666" />
-            <Text style={styles.actionText}>Privacy Settings</Text>
-            <Ionicons name="chevron-forward" size={20} color="#666" />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => navigation.navigate('BlockedUsers')}
-            activeOpacity={0.7}
-          >
-            <Ionicons name="ban-outline" size={20} color="#666" />
-            <Text style={styles.actionText}>Blocked Users</Text>
-            <Ionicons name="chevron-forward" size={20} color="#666" />
-          </TouchableOpacity>
-        </View> 
-
-        <View style={styles.menu}>
-          <MenuItem icon="settings-outline" title="Settings" onPress={() => navigation.navigate('Setting')} />
-          <MenuItem icon="shield-checkmark-outline" title="Safety & Privacy" onPress={() => navigation.navigate('Setting')} />
-          <MenuItem icon="heart-outline" title="My Likes" onPress={() => navigation.navigate('LikesScreen')} />
-          <MenuItem icon="notifications-outline" title="Notifications" onPress={() => navigation.navigate('Notifications')} />
-          <MenuItem icon="help-circle-outline" title="Help & Support" onPress={() => navigation.navigate('HelpsupportScreen')} />
-          <MenuItem icon="information-circle-outline" title="About" onPress={() => navigation.navigate('AboutScreen')} />
-          <MenuItem icon="log-out-outline" title="Logout" onPress={handleLogout} />
-        </View>
-        
       </ScrollView>
     </View>
   );
@@ -339,64 +265,28 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F5F5F5',
-  },
+  }, 
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingTop: 50,
-    paddingBottom: 15, 
+    paddingBottom: 15,  
+  }, 
+  headerLeft:{
+    display: 'flex', 
+    width: 300,
   },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#333',
+  logoText: {
+    width: 150,
+    height: 40,
+  },
+  backButton: {
+    padding: 4,
   },
   settingsButton: {
     padding: 4,
-  },
-  
-  menu: {
-    backgroundColor: '#FFF',
-    marginHorizontal: 15,
-    marginBottom: 15,
-    borderRadius: 15,
-    overflow: 'hidden',
-  },
-  menuItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F8F8F8',
-  },
-  menuItemLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  menuItemText: {
-    fontSize: 15,
-    color: '#666',
-    marginLeft: 15,
-  },
-  menuItemRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  premiumBadge: {
-    backgroundColor: '#FFD700',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-    marginRight: 10,
-  },
-  premiumText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#FFF',
   },
   content: {
     flex: 1,
@@ -404,13 +294,10 @@ const styles = StyleSheet.create({
   profileCard: {
     backgroundColor: '#FFF',
     marginHorizontal: 14,
-    marginTop: 0,
-    marginBottom: 14,
     marginTop: 14,
+    marginBottom: 14,
     padding: 14,
     borderRadius: 14,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.58)',
   },
   profileTopRow: {
     flexDirection: 'row',
@@ -421,7 +308,7 @@ const styles = StyleSheet.create({
     height: 98,
     borderRadius: 49,
     borderWidth: 3,
-    borderColor: '#ff7092',
+    borderColor: '#000',
   },
   profileStatsRow: {
     flex: 1,
@@ -453,6 +340,17 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#222',
   },
+  premiumBadge: {
+    backgroundColor: '#FFD700',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  premiumBadgeText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#000',
+  },
   profileRole: {
     marginTop: 2,
     fontSize: 16,
@@ -478,10 +376,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     minHeight: 40,
   },
-  followBtn: {
+  editBtn: {
     backgroundColor: '#000000',
   },
-  followBtnText: {
+  editBtnText: {
     color: '#FFF',
     fontWeight: '600',
     fontSize: 15,
@@ -498,59 +396,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#EFEFEF',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  premiumBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    marginHorizontal: 16,
-    marginBottom: 16,
-    paddingVertical: 12,
-    borderRadius: 12,
-    gap: 8,
-  },
-  premiumBadgeText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#FFF',
-  },
-  premiumBannerText: {
-    color: '#FFF',
-    fontSize: 16,
-    fontWeight: '600',
-    flex: 1,
-  },
-  premiumLink: {
-    color: '#FFF',
-    fontSize: 14,
-    textDecorationLine: 'underline',
-  },
-  statsContainer: {
-    flexDirection: 'row', 
-    backgroundColor: '#FFF',
-    marginHorizontal: 16,
-    marginBottom: 16,
-    borderRadius: 12,
-    padding: 16,
-  },
-  statItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  statNumber: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#000',
-    marginBottom: 4,
-  },
-  statLabel: { 
-    fontSize: 15,
-    color: '#666', 
-  },
-  statDivider: {
-    width: 1,
-    backgroundColor: '#E0E0E0',
   },
   section: {
     backgroundColor: '#FFF',
@@ -597,11 +442,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
-  }, 
+  },
   interestTag: {
     backgroundColor: '#EFEFF1',
-    borderColor: 'rgba(255, 255, 255, 0.58)',
-    borderWidth: 1,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
@@ -634,13 +477,196 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#F5F5F5',
     gap: 12,
-    '&:last-child': {
-      borderBottomWidth: 0,
-    },
   },
   actionText: {
-    flex: 1, 
+    flex: 1,
     fontSize: 15,
-    color: '#666', 
+    color: '#666',
+  },
+  menu: {
+    backgroundColor: '#FFF',
+    marginHorizontal: 15,
+    marginBottom: 15,
+    borderRadius: 15,
+    overflow: 'hidden',
+  },
+  menuItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F8F8F8',
+  },
+  menuItemLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  menuItemText: {
+    fontSize: 15,
+    color: '#666',
+    marginLeft: 15,
+  },
+  menuItemRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  
+  imageContainer: {
+    width: '100%',
+    height: 400,
+    position: 'relative',
+  },
+  profileImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  matchScoreBadge: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#4CAF50',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 20,
+    gap: 4,
+  },
+  matchScoreText: {
+    color: '#FFF',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  onlineIndicator: { 
+    width: 8,
+    height: 8,
+    borderRadius: 6,
+    backgroundColor: '#ffffff',
+  },
+  imageGradient: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 200,
+  },
+  imageOverlay: {
+    position: 'absolute',
+    bottom: 16,
+    left: 16,
+    right: 16,
+  },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  cardName: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FFF',
+  }, 
+  descContent: {
+    fontSize: 12,
+    fontWeight: '400',
+    color: '#000',
+    marginBottom: 4,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+    gap: 6,
+  },
+  overlayText: {
+    color: '#FFF',
+    fontSize: 14,
+  },
+  cardDetails: {
+    padding: 16,
+    gap: 8,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  detailText: {
+    fontSize: 14,
+    color: '#666',
+  },
+  bioPreview: {
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 20,
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#F0F0F0',
+    gap: 12,
+  },
+  rejectButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#ffffff',
+    borderColor: '#66666627',
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center', 
+  },
+  acceptButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#ffffff',
+    borderColor: '#66666627',
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center', 
+  },
+  viewProfileButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#ffffff',
+    borderColor: '#66666627',
+    borderWidth: 1,
+    paddingVertical: 14,
+    borderRadius: 28,
+    gap: 8,
+  },
+  viewProfileText: {
+    color: '#000000',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  sentListContent: {
+    padding: 16,
+  },
+  sentCard: {
+    backgroundColor: '#FFF',
+    borderRadius: 12,
+    marginBottom: 12,
+    padding: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  sentCardContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });

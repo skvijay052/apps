@@ -146,10 +146,7 @@ export default function ChatScreen({ route, navigation }) {
       />
 
       {/* Input */}
-      <View style={styles.inputContainer}>
-        <TouchableOpacity style={styles.attachButton}>
-          <Ionicons name="add-circle" size={28} color="#FF6B6B" />
-        </TouchableOpacity>
+      <View style={styles.inputContainer}> 
 
         <TextInput
           style={styles.input}
@@ -246,7 +243,8 @@ const styles = StyleSheet.create({
     borderRadius: 18,
   },
   myMessage: {
-    backgroundColor: '#FF6B6B',
+    backgroundColor: '#EFEFF1',
+    borderColor: 'rgba(255, 255, 255, 0.58)',
     borderBottomRightRadius: 4,
   },
   theirMessage: {
@@ -258,7 +256,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   myMessageText: {
-    color: '#FFF',
+    color: '#1F2937',
   },
   theirMessageText: {
     color: '#333',
@@ -268,7 +266,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   myMessageTime: {
-    color: 'rgba(255,255,255,0.7)',
+    color: '#1F2937',
     textAlign: 'right',
   },
   theirMessageTime: {
@@ -278,7 +276,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 15,
-    paddingVertical: 10,
+    paddingBottom: 30,
+    paddingTop: 15,
     backgroundColor: '#FFF',
     borderTopWidth: 1,
     borderTopColor: '#F0F0F0',
@@ -300,7 +299,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#FF6B6B',
+    backgroundColor: '#000000',
     justifyContent: 'center',
     alignItems: 'center',
   },

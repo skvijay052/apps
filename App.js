@@ -11,9 +11,16 @@ export default function App() {
   useEffect(() => {
     // Initialize app
     const init = async () => {
-      await initializeFromStorage();
-      await requestNotificationPermissions();
-      setupNotifications();
+      try {
+        await initializeFromStorage();
+        await requestNotificationPermissions();
+        setupNotifications();
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        // Hide the native splash screen immediately after initialization
+        await SplashScreen.hideAsync();
+      }
     };
 
     init();
