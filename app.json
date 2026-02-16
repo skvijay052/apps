@@ -5,14 +5,14 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "icon": "./assets/icons/app-icon.png",
+    "icon": "./assets/icons/icon.png",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.datingmatch.datingapp"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icons/app-icon.png",
+        "foregroundImage": "./assets/icons/icon.png",
         "backgroundColor": "#000000"
       },
       "package": "com.datingmatch.datingapp",
@@ -32,7 +32,7 @@
       ]
     },
     "web": {
-      "favicon": "./assets/icons/app-icon.png" 
+      "favicon": "./assets/icons/icon.png" 
     },
     "plugins": [
       "expo-image-picker",

@@ -87,8 +87,8 @@ export default function ProfileDetailScreen({ navigation, route }) {
       </View>
       <Text style={styles.infoValue}>{value}</Text>
     </View>
-  );
-
+  ); 
+   
   const SectionTitle = ({ title }) => (
     <Text style={styles.sectionTitle}>{title}</Text>
   );
@@ -148,11 +148,11 @@ export default function ProfileDetailScreen({ navigation, route }) {
             <View style={styles.nameRow}>
               <Text style={styles.cardName}>{user.name}, <Text style={styles.overlayText}>{user.age} Yrs</Text></Text>
             </View>
-            <View style={styles.infoRow}>
+            <View style={styles.infoOverflowRow}>
               <Ionicons name="briefcase-outline" size={12} color="#FFF" />
               <Text style={styles.overlayText}>{user.profession}</Text>
             </View>
-            <View style={styles.infoRow}>
+            <View style={styles.infoOverflowRow}>
               <Ionicons name="location-outline" size={12} color="#FFF" />
               <Text style={styles.overlayText}>{user.location}</Text>
             </View>
@@ -192,7 +192,7 @@ export default function ProfileDetailScreen({ navigation, route }) {
         </View>
 
         {/* About Section */}
-        <View style={styles.section}>
+        <View style={styles.sectionAbout}>
           <SectionTitle title="About Me" />
           <Text style={styles.bioText}>{user.bio}</Text>
         </View>
@@ -397,12 +397,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  sectionAbout:{
+    backgroundColor: '#FFF',
+    marginHorizontal: 16,
+    marginBottom: 16,
+    borderRadius: 12,
+    padding: 16,
+  },
   section: {
     backgroundColor: '#FFF',
     marginHorizontal: 16,
     marginBottom: 16,
     borderRadius: 12,
     padding: 16,
+    gap: 12,
   },
   sectionTitle: {
     fontSize: 18,
@@ -415,6 +423,12 @@ const styles = StyleSheet.create({
     color: '#666',
     lineHeight: 22,
   },
+  infoOverflowRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+    gap: 6,
+  },
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -422,6 +436,12 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#F5F5F5',
+  }, 
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+    gap: 6,
   },
   infoLeft: {
     flexDirection: 'row',
@@ -574,12 +594,6 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     color: '#000',
     marginBottom: 4,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 4,
-    gap: 6,
   },
   overlayText: {
     color: '#FFF',
