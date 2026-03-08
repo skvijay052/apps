@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Dating App - React Native
 
 A modern, feature-rich dating application built with React Native and Expo.
@@ -60,7 +61,7 @@ A modern, feature-rich dating application built with React Native and Expo.
 ## 🏗️ Project Structure
 
 ```
-dating-app/
+Bandhanaa/
 ├── src/
 │   ├── screens/              # All app screens
 │   │   ├── OTPLoginScreen.js
@@ -103,7 +104,7 @@ dating-app/
 
 1. **Clone the repository**
    ```bash
-   cd dating-app
+   cd Bandhanaa
    ```
 
 2. **Install dependencies**
@@ -325,3 +326,7 @@ For issues and questions:
 ---
 
 Built with ❤️ using React Native & Expo
+=======
+# apps
+My React Native dating app
+>>>>>>> f67da323695e350270c26694bc71d1ba63d66411

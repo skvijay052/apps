@@ -113,7 +113,7 @@ export default function ChatListScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF',
+    backgroundColor: '#F5F5F5',
   },
   header: {
     flexDirection: 'row',
@@ -121,9 +121,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingTop: 50,
-    paddingBottom: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    paddingBottom: 15,  
   },
   title: {
     fontSize: 28,
@@ -139,8 +137,9 @@ const styles = StyleSheet.create({
   conversationItem: {
     flexDirection: 'row',
     paddingHorizontal: 20,
-    paddingVertical: 15,
-    backgroundColor: '#FFF',
+    paddingVertical: 15, 
+    borderColor: '#ffffff53',
+    borderBottomWidth: 1, 
   },
   avatarContainer: {
     position: 'relative',

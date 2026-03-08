@@ -1,32 +1,39 @@
 {
   "expo": {
-    "name": "dating-app",
+    "name": "Bandhanaa",
     "slug": "dating-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "splash": {
-      "resizeMode": "contain",
-      "backgroundColor": "#FF6B6B"
-    },
+    "icon": "./assets/icons/icon.png",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yourcompany.datingapp"
+      "bundleIdentifier": "com.datingmatch.datingapp"
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#FF6B6B"
+        "foregroundImage": "./assets/icons/icon.png",
+        "backgroundColor": "#000000"
       },
-      "package": "com.yourcompany.datingapp",
+      "package": "com.datingmatch.datingapp",
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.RECORD_AUDIO"
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": {
+            "scheme": "yourapp"
+          },
+           "category": ["BROWSABLE", "DEFAULT"]
+        }
       ]
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/icons/icon.png"
     },
     "plugins": [
       "expo-image-picker",
@@ -35,12 +42,14 @@
         {
           "color": "#FF6B6B"
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "extra": {
       "eas": {
-        "projectId": "efc4a94e-3f20-4a6d-8893-8b9ed404e632"
+        "projectId": "ec824628-8fdf-401e-8f10-a4c3912ec013"
       }
-    }
+    },
+    "owner": "skvijay"
   }
 }

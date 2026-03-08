@@ -6,18 +6,15 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
-  Dimensions,
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import useStore from '../store/useStore';
-
-const { width } = Dimensions.get('window');
+import { supabase } from '../config/supabase';
 
 export default function ProfileScreen({ navigation, route }) {
   // Mock user data - replace with actual data from API/context
-  const [user, setUser] = useState({
+  const [user] = useState({
     id: 1,
     name: 'Priya Sharma',
     age: 27,
@@ -34,10 +31,7 @@ export default function ProfileScreen({ navigation, route }) {
     maritalStatus: 'Never Married',
     bio: 'Ambitious, family-oriented software engineer looking for a life partner who values both career and family. Love traveling, reading, and cooking.',
     photos: [
-      'https://randomuser.me/api/portraits/women/1.jpg',
-      'https://randomuser.me/api/portraits/women/2.jpg',
-      'https://randomuser.me/api/portraits/women/3.jpg',
-      'https://randomuser.me/api/portraits/women/4.jpg',
+      'https://randomuser.me/api/portraits/women/1.jpg'
     ],
     verified: true,
     premium: true,
@@ -70,27 +64,35 @@ export default function ProfileScreen({ navigation, route }) {
       occupation: 'Professional',
       location: 'Bangalore, Mumbai, Delhi',
     },
-  });
-  const logout = useStore(state => state.logout);
-
-  const handleLogout = () => {
+  }); 
+  
+  const handleLogout = async () => {
     Alert.alert(
       'Logout',
       'Are you sure you want to logout?',
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Logout', onPress: logout, style: 'destructive' },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            const { error } = await supabase.auth.signOut();
+
+            if (error) {
+              Alert.alert('Error', error.message);
+            }
+          },
+        },
       ]
     );
   };
-
 
   const handleEditProfile = () => {
     navigation.navigate('EditProfile');
   };
 
   const handleSettings = () => {
-    navigation.navigate('Settings');
+    navigation.navigate('Setting');
   };
 
   const InfoRow = ({ icon, label, value }) => (
@@ -107,18 +109,18 @@ export default function ProfileScreen({ navigation, route }) {
     <Text style={styles.sectionTitle}>{title}</Text>
   );
 
-    const MenuItem = ({ icon, title, onPress, showBadge }) => (
-      <TouchableOpacity style={styles.menuItem} onPress={onPress}>
-        <View style={styles.menuItemLeft}>
-          <Ionicons name={icon} size={24} color="#333" />
-          <Text style={styles.menuItemText}>{title}</Text>
-        </View>
-        <View style={styles.menuItemRight}>
-          {showBadge && <View style={styles.premiumBadge}><Text style={styles.premiumText}>PRO</Text></View>}
-          <Ionicons name="chevron-forward" size={20} color="#999" />
-        </View>
-      </TouchableOpacity>
-    );
+  const MenuItem = ({ icon, title, onPress, showBadge }) => (
+    <TouchableOpacity style={styles.menuItem} onPress={onPress}>
+      <View style={styles.menuItemLeft}>
+        <Ionicons name={icon} size={20} color="#666" />
+        <Text style={styles.menuItemText}>{title}</Text>
+      </View>
+      <View style={styles.menuItemRight}>
+        {showBadge && <View style={styles.premiumBadge}><Text style={styles.premiumBadgeText}>PRO</Text></View>}
+        <Ionicons name="chevron-forward" size={20} color="#666" />
+      </View>
+    </TouchableOpacity>
+  );
     
   return (
     <View style={styles.container}>
@@ -137,81 +139,57 @@ export default function ProfileScreen({ navigation, route }) {
         style={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        {/* Photos Section */}
-        <View style={styles.photosSection}>
-          <ScrollView
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            style={styles.photosScroll}
-          >
-            {user.photos.map((photo, index) => (
-              <View key={index} style={styles.photoContainer}>
-                <Image
-                  source={{ uri: photo }}
-                  style={styles.photo}
-                  resizeMode="cover"
-                />
-                <LinearGradient
-                  colors={['transparent', 'rgba(0,0,0,0.6)']}
-                  style={styles.photoGradient}
-                />
+        <View style={styles.profileCard}>
+          <View style={styles.profileTopRow}>
+            <Image
+              source={{ uri: user.photos[0] }}
+              style={styles.avatar}
+              resizeMode="cover"
+            />
+            <View style={styles.profileStatsRow}>
+              <View style={styles.profileStatCol}>
+                <Text style={styles.profileStatValue}>3,022</Text>
+                <Text style={styles.profileStatKey}>Posts</Text>
               </View>
-            ))}
-          </ScrollView>
-
-          {/* Photo Counter */}
-          <View style={styles.photoCounter}>
-            <Text style={styles.photoCounterText}>
-              1 / {user.photos.length}
-            </Text>
-          </View>
-
-          {/* Profile Info Overlay */}
-          <View style={styles.profileOverlay}>
-            <View style={styles.nameContainer}>
-              <Text style={styles.name}>{user.name}, {user.age}</Text>
-              {user.verified && (
-                <View style={styles.verifiedBadge}>
-                  <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
-                </View>
-              )}
-            </View>
-            <View style={styles.quickInfo}>
-              <View style={styles.quickInfoItem}>
-                <Ionicons name="business-outline" size={16} color="#FFF" />
-                <Text style={styles.quickInfoText}>{user.profession}</Text>
+              <View style={styles.profileStatCol}>
+                <Text style={styles.profileStatValue}>67.6K</Text>
+                <Text style={styles.profileStatKey}>Followers</Text>
               </View>
-              <View style={styles.quickInfoItem}>
-                <Ionicons name="location-outline" size={16} color="#FFF" />
-                <Text style={styles.quickInfoText}>{user.location}</Text>
+              <View style={styles.profileStatCol}>
+                <Text style={styles.profileStatValue}>2,454</Text>
+                <Text style={styles.profileStatKey}>Following</Text>
               </View>
             </View>
           </View>
-        </View>
 
-        {/* Edit Profile Button */}
-        <TouchableOpacity
-          style={styles.editButton}
-          onPress={handleEditProfile}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="create-outline" size={20} color="#E91E63" />
-          <Text style={styles.editButtonText}>Edit Profile</Text>
-        </TouchableOpacity>
+          <View style={styles.profileNameRow}>
+            <Text style={styles.profileName}>{user.name}</Text>
+            {user.verified && (
+              <Ionicons name="checkmark-circle" size={18} color="#2DBE60" />
+            )}
+          </View>
+          <Text style={styles.profileRole}>Digital creator</Text>
+          <Text style={styles.profileBio} numberOfLines={3}>{user.bio}</Text>
 
-        {/* Premium Badge */}
-        {user.premium && (
-          <View style={styles.premiumBanner}>
-            <Ionicons name="diamond" size={20} color="#FFD700" />
-            <Text style={styles.premiumText}>Premium Member</Text>
+          <View style={styles.profileActionRow}>
+            <TouchableOpacity style={[styles.profileActionBtn, styles.followBtn]} activeOpacity={0.8}>
+              <Text style={styles.followBtnText}>Follow</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.profileActionBtn} activeOpacity={0.8}>
+              <Text style={styles.profileActionText}>Message</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.profileActionBtn} activeOpacity={0.8}>
+              <Text style={styles.profileActionText}>Email</Text>
+            </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => navigation.navigate('Premium')}
+              style={styles.iconActionBtn}
+              activeOpacity={0.8}
+              onPress={handleEditProfile}
             >
-              <Text style={styles.premiumLink}>Manage</Text>
+              <Ionicons name="create-outline" size={18} color="#333" />
             </TouchableOpacity>
           </View>
-        )}
+        </View> 
 
         {/* Stats Row */}
         <View style={styles.statsContainer}>
@@ -302,7 +280,7 @@ export default function ProfileScreen({ navigation, route }) {
             activeOpacity={0.8}
           >
             <Text style={styles.editPreferencesText}>Edit Preferences</Text>
-            <Ionicons name="chevron-forward" size={20} color="#E91E63" />
+            <Ionicons name="chevron-forward" size={20} color="#000" />
           </TouchableOpacity>
         </View>
 
@@ -315,9 +293,9 @@ export default function ProfileScreen({ navigation, route }) {
             onPress={() => navigation.navigate('ManagePhotos')}
             activeOpacity={0.7}
           >
-            <Ionicons name="images-outline" size={24} color="#E91E63" />
+            <Ionicons name="images-outline" size={20} color="#666" />
             <Text style={styles.actionText}>Manage Photos</Text>
-            <Ionicons name="chevron-forward" size={20} color="#999" />
+            <Ionicons name="chevron-forward" size={20} color="#666" />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -325,9 +303,9 @@ export default function ProfileScreen({ navigation, route }) {
             onPress={() => navigation.navigate('Verification')}
             activeOpacity={0.7}
           >
-            <Ionicons name="shield-checkmark-outline" size={24} color="#E91E63" />
+            <Ionicons name="shield-checkmark-outline" size={20} color="#666" />
             <Text style={styles.actionText}>Verify Profile</Text>
-            <Ionicons name="chevron-forward" size={20} color="#999" />
+            <Ionicons name="chevron-forward" size={20} color="#666" />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -335,9 +313,9 @@ export default function ProfileScreen({ navigation, route }) {
             onPress={() => navigation.navigate('PrivacySettings')}
             activeOpacity={0.7}
           >
-            <Ionicons name="lock-closed-outline" size={24} color="#E91E63" />
+            <Ionicons name="lock-closed-outline" size={20} color="#666" />
             <Text style={styles.actionText}>Privacy Settings</Text>
-            <Ionicons name="chevron-forward" size={20} color="#999" />
+            <Ionicons name="chevron-forward" size={20} color="#666" />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -345,15 +323,12 @@ export default function ProfileScreen({ navigation, route }) {
             onPress={() => navigation.navigate('BlockedUsers')}
             activeOpacity={0.7}
           >
-            <Ionicons name="ban-outline" size={24} color="#E91E63" />
+            <Ionicons name="ban-outline" size={20} color="#666" />
             <Text style={styles.actionText}>Blocked Users</Text>
-            <Ionicons name="chevron-forward" size={20} color="#999" />
+            <Ionicons name="chevron-forward" size={20} color="#666" />
           </TouchableOpacity>
-        </View>
+        </View> 
 
-        <View style={{ height: 40 }} />
-
-          {/* Menu */}
         <View style={styles.menu}>
           <MenuItem icon="settings-outline" title="Settings" onPress={() => navigation.navigate('Setting')} />
           <MenuItem icon="shield-checkmark-outline" title="Safety & Privacy" onPress={() => navigation.navigate('Setting')} />
@@ -376,22 +351,19 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#FFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    alignItems: 'center',
+    paddingHorizontal: 20,
     paddingTop: 50,
+    paddingBottom: 15, 
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 28,
+    fontWeight: 'bold',
     color: '#333',
   },
   settingsButton: {
-    padding: 8,
+    padding: 4,
   },
   
   menu: {
@@ -415,8 +387,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   menuItemText: {
-    fontSize: 16,
-    color: '#333',
+    fontSize: 15,
+    color: '#666',
     marginLeft: 15,
   },
   menuItemRight: {
@@ -438,102 +410,103 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
   },
-  photosSection: {
-    height: 480,
-    position: 'relative',
-  },
-  photosScroll: {
-    flex: 1,
-  },
-  photoContainer: {
-    width: width,
-    height: 480,
-  },
-  photo: {
-    width: '100%',
-    height: '100%',
-  },
-  photoGradient: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 200,
-  },
-  photoCounter: {
-    position: 'absolute',
-    top: 16,
-    right: 16,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-  },
-  photoCounterText: {
-    color: '#FFF',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  profileOverlay: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: 20,
-  },
-  nameContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  name: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#FFF',
-    marginRight: 8,
-  },
-  verifiedBadge: {
+  profileCard: {
     backgroundColor: '#FFF',
-    borderRadius: 12,
-    padding: 2,
+    marginHorizontal: 14,
+    marginTop: 0,
+    marginBottom: 14,
+    marginTop: 14,
+    padding: 14,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.58)',
   },
-  quickInfo: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-  },
-  quickInfoItem: {
+  profileTopRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
   },
-  quickInfoText: {
-    color: '#FFF',
-    fontSize: 14,
+  avatar: {
+    width: 98,
+    height: 98,
+    borderRadius: 49,
+    borderWidth: 3,
+    borderColor: '#ff7092',
   },
-  editButton: {
+  profileStatsRow: {
+    flex: 1,
+    marginLeft: 14,
     flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  profileStatCol: {
+    alignItems: 'center',
+  },
+  profileStatValue: {
+    fontSize: 23,
+    fontWeight: '700',
+    color: '#1C1C1C',
+  },
+  profileStatKey: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 2,
+  },
+  profileNameRow: {
+    marginTop: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  profileName: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#222',
+  },
+  profileRole: {
+    marginTop: 2,
+    fontSize: 16,
+    color: '#6E6E6E',
+  },
+  profileBio: {
+    marginTop: 6,
+    fontSize: 16,
+    color: '#2E2E2E',
+    lineHeight: 22,
+  },
+  profileActionRow: {
+    marginTop: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  profileActionBtn: {
+    flex: 1,
+    borderRadius: 10,
+    backgroundColor: '#EFEFEF',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFF',
-    marginHorizontal: 16,
-    marginTop: -24,
-    marginBottom: 16,
-    paddingVertical: 14,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E91E63',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    minHeight: 40,
   },
-  editButtonText: {
-    color: '#E91E63',
-    fontSize: 16,
+  followBtn: {
+    backgroundColor: '#000000',
+  },
+  followBtnText: {
+    color: '#FFF',
     fontWeight: '600',
-    marginLeft: 8,
+    fontSize: 15,
+  },
+  profileActionText: {
+    color: '#2D2D2D',
+    fontWeight: '600',
+    fontSize: 15,
+  },
+  iconActionBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    backgroundColor: '#EFEFEF',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   premiumBanner: {
     flexDirection: 'row',
@@ -546,7 +519,12 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     gap: 8,
   },
-  premiumText: {
+  premiumBadgeText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#FFF',
+  },
+  premiumBannerText: {
     color: '#FFF',
     fontSize: 16,
     fontWeight: '600',
@@ -558,17 +536,12 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
   },
   statsContainer: {
-    flexDirection: 'row',
+    flexDirection: 'row', 
     backgroundColor: '#FFF',
     marginHorizontal: 16,
     marginBottom: 16,
     borderRadius: 12,
     padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
   },
   statItem: {
     flex: 1,
@@ -577,12 +550,12 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#E91E63',
+    color: '#000',
     marginBottom: 4,
   },
-  statLabel: {
-    fontSize: 12,
-    color: '#666',
+  statLabel: { 
+    fontSize: 15,
+    color: '#666', 
   },
   statDivider: {
     width: 1,
@@ -633,15 +606,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
-  },
+  }, 
   interestTag: {
-    backgroundColor: '#FFE8F0',
+    backgroundColor: '#EFEFF1',
+    borderColor: 'rgba(255, 255, 255, 0.58)',
+    borderWidth: 1,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
   },
   interestText: {
-    color: '#E91E63',
+    color: '#333',
     fontSize: 14,
     fontWeight: '500',
   },
@@ -652,12 +627,12 @@ const styles = StyleSheet.create({
     marginTop: 16,
     paddingVertical: 12,
     borderWidth: 1,
-    borderColor: '#E91E63',
+    borderColor: '#000',
     borderRadius: 8,
     gap: 8,
   },
   editPreferencesText: {
-    color: '#E91E63',
+    color: '#000',
     fontSize: 15,
     fontWeight: '600',
   },
@@ -668,10 +643,13 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#F5F5F5',
     gap: 12,
+    '&:last-child': {
+      borderBottomWidth: 0,
+    },
   },
   actionText: {
-    flex: 1,
-    fontSize: 16,
-    color: '#333',
+    flex: 1, 
+    fontSize: 15,
+    color: '#666', 
   },
 });

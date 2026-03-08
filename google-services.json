@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "140657219473",
-    "project_id": "dating-app-e1020",
-    "storage_bucket": "dating-app-e1020.firebasestorage.app"
+    "project_number": "623945752736",
+    "project_id": "bandhanaa-3f0b1",
+    "storage_bucket": "bandhanaa-3f0b1.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:140657219473:android:cdf3caddefa79eb61bac30",
+        "mobilesdk_app_id": "1:623945752736:android:5b7da13501419cdaaca9c5",
         "android_client_info": {
-          "package_name": "com.datingmatch.datingapp"
+          "package_name": "com.company.bandhanaa"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCWnXzT0gnTIJL-ntWgGPlYpN5xu5XYNLg"
+          "current_key": "AIzaSyCPI20Wd5AcMc8HrtVtqt_LswtQP1NdXy8"
         }
       ],
       "services": {

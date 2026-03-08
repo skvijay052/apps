@@ -8,11 +8,13 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Image,
   Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons'; 
 import useStore from '../store/useStore';
+import { supabase } from '../lib/supabase.ts';
 
 export default function RegisterScreen({ navigation }) {
   const [name, setName] = useState('');
@@ -23,6 +25,7 @@ export default function RegisterScreen({ navigation }) {
   const [gender, setGender] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const login = useStore(state => state.login);
   const setProfile = useStore(state => state.setProfile);
@@ -33,57 +36,60 @@ export default function RegisterScreen({ navigation }) {
   };
 
   const handleRegister = async () => {
-    // Validation
     if (!name || !email || !phone || !password || !gender) {
-      Alert.alert('Error', 'Please fill in all fields');
+      Alert.alert('Error', 'Please fill all fields');
       return;
     }
 
-    if (!validateEmail(email)) {
-      Alert.alert('Error', 'Please enter a valid email address');
-      return;
+    setLoading(true);
+
+    try {
+      // 1️⃣ Create Supabase user
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      const user = data.user;
+
+      // 2️⃣ Insert into your SQL users table
+      const { error: dbError } = await supabase
+        .from('users')
+        .insert({
+          id: user.id,
+          name,
+          email,
+          phone: `+91${phone}`,
+          gender,
+          profile_complete: false,
+        });
+
+      if (dbError) throw dbError;
+
+      // 3️⃣ Save locally
+      const userData = {
+        id: user.id,
+        name,
+        email,
+        phone,
+        gender,
+      };
+
+      await login(userData);
+      setProfile(userData);
+
+      Alert.alert('Success', 'Account created!');
+      navigation.replace('CreateProfile');
+
+    } catch (err) {
+      Alert.alert('Error', err.message);
+    } finally {
+      setLoading(false);
     }
-
-    if (phone.length < 10) {
-      Alert.alert('Error', 'Please enter a valid phone number');
-      return;
-    }
-
-    if (password.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match');
-      return;
-    }
-
-    // Create user account
-    const userData = {
-      id: Date.now(),
-      name,
-      email,
-      phone,
-      gender,
-      createdAt: new Date().toISOString(),
-    };
-
-    // Save to store
-    await login(userData);
-    
-    // Set basic profile
-    setProfile({
-      name,
-      gender,
-      email,
-      phone,
-    });
-
-    // Navigate to complete profile
-    navigation.replace('CreateProfile');
   };
-
+ 
   const GenderButton = ({ value, label, icon }) => (
     <TouchableOpacity
       style={[styles.genderButton, gender === value && styles.genderButtonActive]}
@@ -92,7 +98,7 @@ export default function RegisterScreen({ navigation }) {
       <Ionicons 
         name={icon} 
         size={24} 
-        color={gender === value ? '#FF6B6B' : '#999'} 
+        color={gender === value ? '#fff' : '#9CA3AF'} 
       />
       <Text style={[
         styles.genderText,
@@ -105,15 +111,19 @@ export default function RegisterScreen({ navigation }) {
 
   return (
     <KeyboardAvoidingView 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      enabled={Platform.OS === 'ios'}
       style={styles.container}
     >
       <LinearGradient
-        colors={['#FF6B6B', '#FF8E53']}
+        colors={['#fff', '#fff']}
         style={styles.header}
       >
-        <View style={styles.headerContent}>
-          <Ionicons name="heart-circle" size={60} color="#FFF" />
+        <View style={styles.headerContent}> 
+           <Image
+              source={require('../assets/icons/icon-transparent.png')}
+              style={styles.logo}
+            />
           <Text style={styles.headerTitle}>Create Account</Text>
           <Text style={styles.headerSubtitle}>Join us to find your perfect match</Text>
         </View>
@@ -129,13 +139,15 @@ export default function RegisterScreen({ navigation }) {
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Full Name *</Text>
             <View style={styles.inputContainer}>
-              <Ionicons name="person-outline" size={20} color="#999" />
+              <Ionicons name="person-outline" size={20} color="#9CA3AF" />
               <TextInput
                 style={styles.input}
+                placeholderTextColor="#9CA3AF"
                 placeholder="Enter your name"
                 value={name}
                 onChangeText={setName}
                 autoCapitalize="words"
+                editable={!loading}
               />
             </View>
           </View>
@@ -144,14 +156,16 @@ export default function RegisterScreen({ navigation }) {
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Email Address *</Text>
             <View style={styles.inputContainer}>
-              <Ionicons name="mail-outline" size={20} color="#999" />
+              <Ionicons name="mail-outline" size={20} color="#9CA3AF" />
               <TextInput
                 style={styles.input}
                 placeholder="your.email@example.com"
+                placeholderTextColor="#9CA3AF"
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
                 autoCapitalize="none"
+                editable={!loading}
               />
             </View>
           </View>
@@ -160,15 +174,17 @@ export default function RegisterScreen({ navigation }) {
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Phone Number *</Text>
             <View style={styles.inputContainer}>
-              <Ionicons name="call-outline" size={20} color="#999" />
+              <Ionicons name="call-outline" size={20} color="#9CA3AF" />
               <Text style={styles.countryCode}>+91</Text>
               <TextInput
                 style={styles.input}
                 placeholder="Phone number"
                 value={phone}
+                placeholderTextColor="#9CA3AF"
                 onChangeText={setPhone}
                 keyboardType="phone-pad"
                 maxLength={10}
+                editable={!loading}
               />
             </View>
           </View>
@@ -186,20 +202,22 @@ export default function RegisterScreen({ navigation }) {
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Password *</Text>
             <View style={styles.inputContainer}>
-              <Ionicons name="lock-closed-outline" size={20} color="#999" />
+              <Ionicons name="lock-closed-outline" size={20} color="#9CA3AF" />
               <TextInput
                 style={styles.input}
                 placeholder="Enter password"
                 value={password}
+                placeholderTextColor="#9CA3AF"
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
+                editable={!loading}
               />
               <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
                 <Ionicons 
                   name={showPassword ? "eye-outline" : "eye-off-outline"} 
                   size={20} 
-                  color="#999" 
+                  color="#9CA3AF" 
                 />
               </TouchableOpacity>
             </View>
@@ -209,20 +227,22 @@ export default function RegisterScreen({ navigation }) {
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Confirm Password *</Text>
             <View style={styles.inputContainer}>
-              <Ionicons name="lock-closed-outline" size={20} color="#999" />
+              <Ionicons name="lock-closed-outline" size={20} color="#9CA3AF" />
               <TextInput
                 style={styles.input}
                 placeholder="Confirm password"
+                placeholderTextColor="#9CA3AF"
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
                 secureTextEntry={!showConfirmPassword}
                 autoCapitalize="none"
+                editable={!loading}
               />
               <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
                 <Ionicons 
                   name={showConfirmPassword ? "eye-outline" : "eye-off-outline"} 
                   size={20} 
-                  color="#999" 
+                  color="#9CA3AF" 
                 />
               </TouchableOpacity>
             </View>
@@ -232,12 +252,15 @@ export default function RegisterScreen({ navigation }) {
           <TouchableOpacity 
             style={styles.registerButton}
             onPress={handleRegister}
+            disabled={loading}
           >
             <LinearGradient
-              colors={['#FF6B6B', '#FF8E53']}
+              colors={['#F3F4F6', '#F3F4F6']}
               style={styles.registerGradient}
             >
-              <Text style={styles.registerButtonText}>Create Account</Text>
+              <Text style={styles.registerButtonText}>
+                {loading ? 'Creating Account...' : 'Create Account'}
+              </Text>
             </LinearGradient>
           </TouchableOpacity>
 
@@ -252,7 +275,7 @@ export default function RegisterScreen({ navigation }) {
       </ScrollView>
     </KeyboardAvoidingView>
   );
-}
+} 
 
 const styles = StyleSheet.create({
   container: {
@@ -261,21 +284,24 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingTop: 60,
-    paddingBottom: 30,
-    paddingHorizontal: 20,
+    paddingBottom: 30, 
   },
   headerContent: {
     alignItems: 'center',
+  }, 
+  logo: {
+    width: 100,
+    height: 70,
   },
   headerTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#FFF',
+    color: '#1F2937',
     marginTop: 15,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: 'rgba(255,255,255,0.9)',
+    color: '#1F2937',
     marginTop: 5,
   },
   scrollView: {
@@ -300,22 +326,23 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8F8F8',
+    backgroundColor: '#F3F4F6',
     borderRadius: 12,
     paddingHorizontal: 15,
     borderWidth: 1,
-    borderColor: '#E8E8E8',
+    borderColor: '#F3F4F6',
   },
   input: {
     flex: 1,
     height: 50,
     fontSize: 16,
-    color: '#333',
+    color: '#1F2937',
+    backgroundColor: '#F3F4F6',
     marginLeft: 10,
   },
   countryCode: {
     fontSize: 16,
-    color: '#333',
+    color: '#1F2937',
     fontWeight: '600',
     marginLeft: 10,
   },
@@ -328,43 +355,46 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F8F8F8',
+    backgroundColor: '#F3F4F6',
     borderRadius: 12,
     padding: 15,
     borderWidth: 2,
-    borderColor: '#E8E8E8',
+    borderColor: '#F3F4F6',
   },
   genderButtonActive: {
-    backgroundColor: '#FFE8E8',
-    borderColor: '#FF6B6B',
+    backgroundColor: '#1F2937',
+    borderColor: '#1F2937',
   },
   genderText: {
     fontSize: 14,
-    color: '#999',
+    color: '#9CA3AF',
     marginLeft: 8,
     fontWeight: '600',
   },
   genderTextActive: {
-    color: '#FF6B6B',
+    color: '#fff',
   },
   registerButton: {
-    marginTop: 10,
+    backgroundColor: '#F3F4F6',
     borderRadius: 12,
-    overflow: 'hidden',
-    shadowColor: '#FF6B6B',
+    height: 55,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#F3F4F6',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
+    marginBottom: 20,
   },
   registerGradient: {
     padding: 18,
     alignItems: 'center',
   },
   registerButtonText: {
-    color: '#FFF',
+    color: '#6B7280',
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '400',
   },
   loginContainer: {
     flexDirection: 'row',
@@ -377,7 +407,7 @@ const styles = StyleSheet.create({
   },
   loginLink: {
     fontSize: 14,
-    color: '#FF6B6B',
+    color: '#1F2937',
     fontWeight: 'bold',
   },
 });

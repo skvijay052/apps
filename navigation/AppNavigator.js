@@ -1,5 +1,5 @@
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,14 +17,16 @@ import ChatScreen from '../screens/ChatScreen';
 import NotificationsScreen from '../screens/NotificationsScreen';
 import PremiumScreen from '../screens/PremiumScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import SplashScreen from '../screens/SplashScreen';  
 import SettingScreen from '../screens/Settingsscreen'; 
 import AboutScreen from '../screens/AboutScreen';
 
 import useStore from '../store/useStore';
-import HelpSupportScreen from '../screens/Helpsupportscreen';
+import HelpSupportScreen from '../screens/HelpsupportScreen';
 import LikesScreen from '../screens/LikeScreen';
 import HomeScreen from '../screens/HomeScreen';
 import RegisterScreen from '../screens/RegisterScreen';
+import ProfileDetailScreen from '../screens/ProfileDetailScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -32,7 +34,10 @@ const Tab = createBottomTabNavigator();
 // Auth Stack
 function AuthStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}> 
+    <Stack.Navigator
+      initialRouteName="OTPLogin"
+      screenOptions={{ headerShown: false }}
+    > 
       <Stack.Screen name="Register" component={RegisterScreen} />
       <Stack.Screen name="OTPLogin" component={OTPLoginScreen} />
       <Stack.Screen name="CreateProfile" component={CreateProfileScreen} />
@@ -66,20 +71,20 @@ function MainTabs() {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#FF6B6B',
-        tabBarInactiveTintColor: '#999',
+        tabBarActiveTintColor: '#000',
+        tabBarInactiveTintColor: '#9CA3AF',
+        tabBarShowLabel: false, 
         headerShown: false,
         tabBarStyle: {
           backgroundColor: '#FFF',
           borderTopWidth: 1,
-          borderTopColor: '#F0F0F0',
-          paddingBottom: 5,
-          paddingTop: 5,
+          borderTopColor: '#fff',
+          paddingBottom: 15,
           height: 60,
         },
         tabBarLabelStyle: {
           fontSize: 12,
-          fontWeight: '600',
+          fontWeight: '600',     
         }
       })}
     >
@@ -99,11 +104,26 @@ function MainTabs() {
 }
  
 // Main App Navigator
-export default function AppNavigator() {
-  const isAuthenticated = useStore(state => state.isAuthenticated);
+export default function AppNavigator({ session, authLoading }) {
+  const [showSplash, setShowSplash] = useState(true);
+  const isAuthenticated = !!session;
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSplash(false), 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (authLoading || showSplash) {
+    return <SplashScreen />;
+  }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer
+      theme={{
+        ...DarkTheme,
+        colors: { ...DarkTheme.colors, background: '#000' },
+      }}
+    >
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {!isAuthenticated ? (
           <Stack.Screen name="Auth" component={AuthStack} />
@@ -115,9 +135,9 @@ export default function AppNavigator() {
             <Stack.Screen name="Notifications" component={NotificationsScreen} />
             <Stack.Screen name="Premium" component={PremiumScreen} />
             <Stack.Screen name="Setting" component={SettingScreen} />
-            <Stack.Screen name="HelpsupportScreen" component={HelpSupportScreen} />
-            <Stack.Screen name="AboutScreen" component={AboutScreen} /> 
-            <Stack.Screen name="LikesScreen" component={LikesScreen} /> 
+            <Stack.Screen name="Help" component={HelpSupportScreen} />
+            <Stack.Screen name="About" component={AboutScreen} />
+            <Stack.Screen name="ProfileDetail" component={ProfileDetailScreen} />
           </>
         )}
       </Stack.Navigator>
