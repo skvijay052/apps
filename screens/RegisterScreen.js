@@ -12,11 +12,9 @@ import {
   Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
-import { auth, db } from '../config/firebase.js';
+import { Ionicons } from '@expo/vector-icons'; 
 import useStore from '../store/useStore';
+import { supabase } from '../lib/supabase.ts';
 
 export default function RegisterScreen({ navigation }) {
   const [name, setName] = useState('');
@@ -38,91 +36,60 @@ export default function RegisterScreen({ navigation }) {
   };
 
   const handleRegister = async () => {
-    // Validation
     if (!name || !email || !phone || !password || !gender) {
-      Alert.alert('Error', 'Please fill in all fields');
-      return;
-    }
-
-    if (!validateEmail(email)) {
-      Alert.alert('Error', 'Please enter a valid email address');
-      return;
-    }
-
-    if (phone.length < 10) {
-      Alert.alert('Error', 'Please enter a valid phone number');
-      return;
-    }
-
-    if (password.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match');
+      Alert.alert('Error', 'Please fill all fields');
       return;
     }
 
     setLoading(true);
 
     try {
-      // Create Firebase Auth user
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-
-      // Create user document in Firestore
-      await setDoc(doc(db, 'users', user.uid), {
-        uid: user.uid,
-        name,
+      // 1️⃣ Create Supabase user
+      const { data, error } = await supabase.auth.signUp({
         email,
-        phone: `+91${phone}`,
-        gender,
-        createdAt: new Date().toISOString(),
-        profileComplete: false,
+        password,
       });
 
-      // Save to local store
+      if (error) throw error;
+
+      const user = data.user;
+
+      // 2️⃣ Insert into your SQL users table
+      const { error: dbError } = await supabase
+        .from('users')
+        .insert({
+          id: user.id,
+          name,
+          email,
+          phone: `+91${phone}`,
+          gender,
+          profile_complete: false,
+        });
+
+      if (dbError) throw dbError;
+
+      // 3️⃣ Save locally
       const userData = {
-        id: user.uid,
+        id: user.id,
         name,
         email,
         phone,
         gender,
-        createdAt: new Date().toISOString(),
       };
 
       await login(userData);
-      
-      setProfile({
-        name,
-        gender,
-        email,
-        phone,
-      });
+      setProfile(userData);
 
-      Alert.alert('Success', 'Account created successfully!');
+      Alert.alert('Success', 'Account created!');
       navigation.replace('CreateProfile');
 
-    } catch (error) {
-      console.error('Registration error:', error);
-      
-      let errorMessage = 'Registration failed. Please try again.';
-      
-      if (error.code === 'auth/email-already-in-use') {
-        errorMessage = 'This email is already registered.';
-      } else if (error.code === 'auth/weak-password') {
-        errorMessage = 'Password is too weak.';
-      } else if (error.code === 'auth/invalid-email') {
-        errorMessage = 'Invalid email address.';
-      }
-      
-      Alert.alert('Error', errorMessage);
+    } catch (err) {
+      Alert.alert('Error', err.message);
     } finally {
       setLoading(false);
     }
   };
-
+ 
   const GenderButton = ({ value, label, icon }) => (
     <TouchableOpacity
       style={[styles.genderButton, gender === value && styles.genderButtonActive]}

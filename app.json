@@ -27,12 +27,13 @@
           "action": "VIEW",
           "data": {
             "scheme": "yourapp"
-          }
+          },
+           "category": ["BROWSABLE", "DEFAULT"]
         }
       ]
     },
     "web": {
-      "favicon": "./assets/icons/icon.png" 
+      "favicon": "./assets/icons/icon.png"
     },
     "plugins": [
       "expo-image-picker",
@@ -41,7 +42,8 @@
         {
           "color": "#FF6B6B"
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "extra": {
       "eas": {

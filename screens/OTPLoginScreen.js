@@ -11,176 +11,90 @@ import {
   Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
-import { 
-  signInWithEmailAndPassword,
-  PhoneAuthProvider,
-  signInWithCredential
-} from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
-import { auth, db } from '../config/firebase';
+import { Ionicons } from '@expo/vector-icons';    
 import useStore from '../store/useStore';
+import { supabase } from '../config/supabase';
+import * as Linking from 'expo-linking';
+import { makeRedirectUri } from 'expo-auth-session';
 
-export default function LoginScreen({ navigation }) {
-  // Login method toggle
-  const [loginMethod, setLoginMethod] = useState('email'); // 'email' or 'otp'
-  
-  // Email/Password fields
+
+
+
+export default function LoginScreen({ navigation }) { 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   
-  // OTP fields
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [otpStep, setOtpStep] = useState('phone'); // 'phone' or 'verify'
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
-  const [verificationId, setVerificationId] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const otpRefs = useRef([]);
+  // OTP fields  
+  const [loading, setLoading] = useState(false); 
 
-  const login = useStore(state => state.login);
-  const setPhoneNumberStore = useStore(state => state.setPhoneNumber);
+  const login = useStore(state => state.login); 
 
   // Email/Password Login with Firebase
   const handleEmailLogin = async () => {
-    if (!email || !password) {
-      Alert.alert('Error', 'Please enter email and password');
+    if (!email) {
+      Alert.alert('Error', 'Please enter email');
       return;
     }
 
     setLoading(true);
 
     try {
-      // Sign in with Firebase Auth
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
+      const redirectUrl = Linking.createURL('auth');
 
-      // Get user data from Firestore
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
-      
-      if (userDoc.exists()) {
-        const userData = {
-          id: user.uid,
-          ...userDoc.data()
-        };
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: redirectUrl,
+        },
+      });
 
-        await login(userData);
-        Alert.alert('Success', 'Login successful!');
-        
-        // Check if profile is complete
-        if (userData.profileComplete) {
-          navigation.replace('Main');
-        } else {
-          navigation.replace('CreateProfile');
-        }
-      } else {
-        Alert.alert('Error', 'User data not found. Please register again.');
-      }
+      if (error) throw error;
 
-    } catch (error) {
-      console.error('Login error:', error);
-      
-      let errorMessage = 'Login failed. Please try again.';
-      
-      if (error.code === 'auth/user-not-found') {
-        errorMessage = 'No account found with this email.';
-      } else if (error.code === 'auth/wrong-password') {
-        errorMessage = 'Incorrect password.';
-      } else if (error.code === 'auth/invalid-email') {
-        errorMessage = 'Invalid email address.';
-      } else if (error.code === 'auth/too-many-requests') {
-        errorMessage = 'Too many attempts. Please try again later.';
-      }
-      
-      Alert.alert('Error', errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Phone OTP Login (Note: Phone auth requires additional setup)
-  const handleSendOTP = async () => {
-    if (phoneNumber.length < 10) {
-      Alert.alert('Error', 'Please enter a valid phone number');
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      // For demo purposes - in production, use Firebase Phone Auth
-      // Firebase Phone Auth requires reCAPTCHA setup for web
-      // For React Native, you need @react-native-firebase/auth
-      
       Alert.alert(
-        'Demo Mode',
-        'Phone authentication is in demo mode. Use OTP: 123456',
-        [{ text: 'OK', onPress: () => {
-          setPhoneNumberStore(`+91${phoneNumber}`);
-          setOtpStep('verify');
-        }}]
+        'Check your email',
+        'We sent you a secure login link'
       );
-
-    } catch (error) {
-      console.error('OTP send error:', error);
-      Alert.alert('Error', 'Failed to send OTP. Please try again.');
+    } catch (err) {
+      Alert.alert('Error', err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleOTPChange = (value, index) => {
-    const newOtp = [...otp];
-    newOtp[index] = value;
-    setOtp(newOtp);
+const handleGoogleLogin = async () => {
+  try {
+    const redirectTo = makeRedirectUri({
+      scheme: 'datingapp',
+      path: 'auth/callback',
+    });
 
-    // Auto-focus next input
-    if (value && index < 5) {
-      otpRefs.current[index + 1].focus();
-    }
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo,
+        skipBrowserRedirect: true,
+      },
+    });
 
-    // Auto-verify when all filled
-    if (index === 5 && value) {
-      verifyOTP(newOtp.join(''));
-    }
-  };
+    if (error) throw error;
+    if (!data?.url) throw new Error('No auth URL returned');
 
-  const handleBackspace = (value, index) => {
-    if (!value && index > 0) {
-      otpRefs.current[index - 1].focus();
-    }
-  };
+    const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
 
-  const verifyOTP = async (otpCode) => {
-    setLoading(true);
+    if (result.type !== 'success' || !result.url) return;
 
-    try {
-      // Demo verification - replace with actual Firebase Phone Auth
-      if (otpCode === '123456') {
-        // Create a mock user for demo
-        const userData = {
-          id: Date.now().toString(),
-          phoneNumber: `+91${phoneNumber}`,
-          name: 'User',
-          createdAt: new Date().toISOString(),
-        };
-        
-        await login(userData);
-        Alert.alert('Success', 'Login successful!');
-        navigation.replace('CreateProfile');
-      } else {
-        Alert.alert('Error', 'Invalid OTP. Please try again. (Use 123456)');
-        setOtp(['', '', '', '', '', '']);
-        otpRefs.current[0].focus();
-      }
-    } catch (error) {
-      console.error('OTP verification error:', error);
-      Alert.alert('Error', 'Verification failed. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+    const { data: sessionData, error: sessionError } =
+      await supabase.auth.exchangeCodeForSession(result.url);
 
+    if (sessionError) throw sessionError;
+
+    Alert.alert('Success', 'Logged in with Google');
+  } catch (err) {
+    Alert.alert('Google Login Error', err.message);
+  }
+};
+  
   return (
     <KeyboardAvoidingView 
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -201,60 +115,7 @@ export default function LoginScreen({ navigation }) {
 
           {/* Login Form */}
           <View style={styles.formContainer}>
-           
-            {/* Login Method Toggle */}
-            <View style={styles.toggleContainer}>
-              <TouchableOpacity
-                style={[
-                  styles.toggleButton,
-                  loginMethod === 'email' && styles.toggleButtonActive
-                ]}
-                onPress={() => {
-                  setLoginMethod('email');
-                  setOtpStep('phone');
-                }}
-                disabled={loading}
-              >
-                <Ionicons 
-                  name="mail-outline" 
-                  size={18} 
-                  color={loginMethod === 'email' ? '#1F2937' : '#1F2937'} 
-                />
-                <Text style={[
-                  styles.toggleButtonText,
-                  loginMethod === 'email' && styles.toggleButtonTextActive
-                ]}>
-                  Email
-                </Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity
-                style={[
-                  styles.toggleButton,
-                  loginMethod === 'otp' && styles.toggleButtonActive
-                ]}
-                onPress={() => {
-                  setLoginMethod('otp');
-                  setOtpStep('phone');
-                }}
-                disabled={loading}
-              >
-                <Ionicons 
-                  name="phone-portrait-outline" 
-                  size={18} 
-                  color={loginMethod === 'otp' ? '#1F2937' : '#1F2937'} 
-                />
-                <Text style={[
-                  styles.toggleButtonText,
-                  loginMethod === 'otp' && styles.toggleButtonTextActive
-                ]}>
-                  Phone OTP
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* EMAIL/PASSWORD LOGIN */}
-            {loginMethod === 'email' && (
+  
               <>
                 {/* Email Input */}
                 <View style={styles.inputGroup}>
@@ -312,113 +173,26 @@ export default function LoginScreen({ navigation }) {
                     {loading ? 'Logging in...' : 'Login with Email'}
                   </Text>
                 </TouchableOpacity>
-              </>
-            )}
-
-            {/* OTP LOGIN */}
-            {loginMethod === 'otp' && (
-              <>
-                {otpStep === 'phone' ? (
-                  <>
-                    {/* Phone Input */}
-                    <View style={styles.inputGroup}>
-                      <View style={styles.inputContainer}>
-                        <Ionicons name="call-outline" size={20} color="#9CA3AF" />
-                        <Text style={styles.countryCode}>+91</Text>
-                        <TextInput
-                          style={styles.input}
-                          placeholder="Phone Number"
-                          placeholderTextColor="#9CA3AF"
-                          value={phoneNumber}
-                          onChangeText={setPhoneNumber}
-                          keyboardType="phone-pad"
-                          maxLength={10}
-                          editable={!loading}
-                        />
-                      </View>
-                    </View>
-
-                    {/* Send OTP Button */}
-                    <TouchableOpacity 
-                      style={styles.loginButton}
-                      onPress={handleSendOTP}
-                      disabled={loading}
-                    >
-                      <Text style={styles.loginButtonText}>
-                        {loading ? 'Sending...' : 'Send OTP'}
-                      </Text>
-                    </TouchableOpacity>
-                  </>
-                ) : (
-                  <>
-                    {/* Back Button */}
-                    <TouchableOpacity 
-                      style={styles.backButton}
-                      onPress={() => setOtpStep('phone')}
-                      disabled={loading}
-                    >
-                      <Ionicons name="arrow-back" size={24} color="#1F2937" />
-                      <Text style={styles.backButtonText}>Change Number</Text>
-                    </TouchableOpacity>
-
-                    {/* OTP Instructions */}
-                    <Text style={styles.otpInstructions}>
-                      Enter the 6-digit code sent to{'\n'}+91 {phoneNumber}
-                    </Text>
-
-                    {/* OTP Input */}
-                    <View style={styles.otpContainer}>
-                      {otp.map((digit, index) => (
-                        <TextInput
-                          key={index}
-                          ref={ref => otpRefs.current[index] = ref}
-                          style={styles.otpInput}
-                          value={digit}
-                          onChangeText={(value) => handleOTPChange(value, index)}
-                          onKeyPress={({ nativeEvent }) => {
-                            if (nativeEvent.key === 'Backspace') {
-                              handleBackspace(digit, index);
-                            }
-                          }}
-                          keyboardType="number-pad"
-                          maxLength={1}
-                          editable={!loading}
-                        />
-                      ))}
-                    </View>
-
-                    {/* Resend OTP */}
-                    <TouchableOpacity 
-                      style={styles.resendButton}
-                      onPress={handleSendOTP}
-                      disabled={loading}
-                    >
-                      <Text style={styles.resendText}>Didn't receive? Resend OTP</Text>
-                    </TouchableOpacity>
-
-                    {/* Hint */}
-                    <Text style={styles.otpHint}>Demo OTP: 123456</Text>
-                  </>
-                )}
-              </>
-            )}
-
-            {/* OR Divider - Only show for email login */}
-            {loginMethod === 'email' && (
+              </> 
+   
               <View style={styles.divider}>
                 <View style={styles.dividerLine} />
                 <Text style={styles.dividerText}>OR</Text>
                 <View style={styles.dividerLine} />
-              </View>
-            )}
-
-            {/* Register Link */}
-            <View style={styles.registerContainer}>
-              <Text style={styles.registerText}>Don't have an account? </Text>
-              <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-                <Text style={styles.registerLink}>Sign Up</Text>
-              </TouchableOpacity>
-            </View>
+              </View> 
+              
+            {/* Google Login */}
+            <TouchableOpacity
+              style={styles.googleButton}
+              activeOpacity={0.85}
+              onPress={handleGoogleLogin}
+            > 
+              <Image
+                source={require('../assets/icons/google.png')}
+                style={styles.googleIcon}
+              />
+              <Text style={styles.googleButtonText}>Continue with Google</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </LinearGradient>
@@ -445,6 +219,10 @@ const styles = StyleSheet.create({
   logo: {
     width: 200,
     height: 140,
+  },
+  googleIcon: {
+    width: 22,
+    height: 22,
   },
   appName: {
     fontSize: 32,
@@ -632,19 +410,21 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginLeft: 10,
   },
-  registerContainer: {
+  googleButton: {
+    marginTop: 8,
+    height: 60,
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: '#F3F4F6',
+    backgroundColor: '#F3F4F6',
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 20,
   },
-  registerText: {
-    fontSize: 14,
-    color: 'rgba(0,0,0,0.9)',
-  },
-  registerLink: {
-    fontSize: 14,
-    color: '#1F2937',
-    fontWeight: 'bold',
-    textDecorationLine: 'underline',
+  googleButtonText: {
+    marginLeft: 12,
+    color: '#6B7280',
+    fontSize: 20,
+    fontWeight: '400',
   },
 });

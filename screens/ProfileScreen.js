@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import useStore from '../store/useStore';
+import { supabase } from '../config/supabase';
 
 export default function ProfileScreen({ navigation, route }) {
   // Mock user data - replace with actual data from API/context
@@ -63,20 +64,28 @@ export default function ProfileScreen({ navigation, route }) {
       occupation: 'Professional',
       location: 'Bangalore, Mumbai, Delhi',
     },
-  });
-  const logout = useStore(state => state.logout);
-
-  const handleLogout = () => {
+  }); 
+  
+  const handleLogout = async () => {
     Alert.alert(
       'Logout',
       'Are you sure you want to logout?',
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Logout', onPress: logout, style: 'destructive' },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            const { error } = await supabase.auth.signOut();
+
+            if (error) {
+              Alert.alert('Error', error.message);
+            }
+          },
+        },
       ]
     );
   };
-
 
   const handleEditProfile = () => {
     navigation.navigate('EditProfile');

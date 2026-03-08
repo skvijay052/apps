@@ -34,7 +34,10 @@ const Tab = createBottomTabNavigator();
 // Auth Stack
 function AuthStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}> 
+    <Stack.Navigator
+      initialRouteName="OTPLogin"
+      screenOptions={{ headerShown: false }}
+    > 
       <Stack.Screen name="Register" component={RegisterScreen} />
       <Stack.Screen name="OTPLogin" component={OTPLoginScreen} />
       <Stack.Screen name="CreateProfile" component={CreateProfileScreen} />
@@ -101,35 +104,26 @@ function MainTabs() {
 }
  
 // Main App Navigator
-export default function AppNavigator() {
-  const isAuthenticated = useStore(state => state.isAuthenticated);
+export default function AppNavigator({ session, authLoading }) {
   const [showSplash, setShowSplash] = useState(true);
+  const isAuthenticated = !!session;
 
-  const darkTheme = {
-    ...DarkTheme,
-    colors: {
-      ...DarkTheme.colors,
-      background: '#000000',
-    },
-  };
-  
   useEffect(() => {
-    // Hide splash screen after 3 seconds
-    const timer = setTimeout(() => {
-      setShowSplash(false);
-    }, 3000);
-
+    const timer = setTimeout(() => setShowSplash(false), 2000);
     return () => clearTimeout(timer);
   }, []);
 
-  // Show splash screen first
-  if (showSplash) {
+  if (authLoading || showSplash) {
     return <SplashScreen />;
   }
 
-
   return (
-    <NavigationContainer theme={darkTheme}>
+    <NavigationContainer
+      theme={{
+        ...DarkTheme,
+        colors: { ...DarkTheme.colors, background: '#000' },
+      }}
+    >
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {!isAuthenticated ? (
           <Stack.Screen name="Auth" component={AuthStack} />
@@ -141,10 +135,9 @@ export default function AppNavigator() {
             <Stack.Screen name="Notifications" component={NotificationsScreen} />
             <Stack.Screen name="Premium" component={PremiumScreen} />
             <Stack.Screen name="Setting" component={SettingScreen} />
-            <Stack.Screen name="HelpsupportScreen" component={HelpSupportScreen} />
-            <Stack.Screen name="AboutScreen" component={AboutScreen} /> 
-            <Stack.Screen name="LikesScreen" component={LikesScreen} /> 
-            <Stack.Screen name="ProfileDetailScreen" component={ProfileDetailScreen} />
+            <Stack.Screen name="Help" component={HelpSupportScreen} />
+            <Stack.Screen name="About" component={AboutScreen} />
+            <Stack.Screen name="ProfileDetail" component={ProfileDetailScreen} />
           </>
         )}
       </Stack.Navigator>
